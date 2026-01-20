@@ -1,5 +1,6 @@
 package com.project.board.domain.user.controller;
 
+import com.project.board.domain.user.dto.LoginRequest;
 import com.project.board.domain.user.dto.SignupRequest;
 import com.project.board.domain.user.dto.UserResponse;
 import com.project.board.domain.user.service.UserService;
@@ -25,5 +26,11 @@ public class UserController {
         UserResponse response = userService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(response, "회원가입 성공"));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<UserResponse>> login(@Valid @RequestBody LoginRequest request){
+        UserResponse response = userService.login(request);
+        return ResponseEntity.ok(ApiResponse.ok(response, "로그인 성공"));
     }
 }
