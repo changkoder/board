@@ -25,12 +25,12 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> signup(@Valid @RequestBody SignupRequest request){
         UserResponse response = userService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok(response, "회원가입 성공"));
+                .body(ApiResponse.success(response, "회원가입 성공"));
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserResponse>> login(@Valid @RequestBody LoginRequest request){
         UserResponse response = userService.login(request);
-        return ResponseEntity.ok(ApiResponse.ok(response, "로그인 성공"));
+        return ResponseEntity.ok(ApiResponse.success(response, "로그인 성공"));
     }
 }
