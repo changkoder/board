@@ -7,6 +7,8 @@ import com.project.board.domain.post.service.PostService;
 import com.project.board.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,15 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<PostResponse>>> findAll(
+    @RequestParam(required = false) Long categoryId,
+    Pageable pageable
+    ){
+        Page<PostResponse> response = postService.findAll(categoryId, pageable);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<PostResponse>> create(

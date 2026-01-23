@@ -13,6 +13,8 @@ import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.global.exception.CustomException;
 import com.project.board.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,18 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+
+    public Page<PostResponse> findAll(Long categoryId, Pageable pageable){
+        Page<Post> posts;
+
+        if(categoryId != null){
+            posts = postRepository.findByCategoryActive(categoryId, pageable);
+        } else {
+            posts = postRepository.findAllActive(pageable);
+        }
+
+        return posts.map(post -> PostResponse.from(post));
+    }
 
     @Transactional
     public PostResponse create(Long userId, PostCreateRequest request){//서비스 계층이 받는 정보는 주로 아이디만 받나보군
@@ -51,6 +65,8 @@ public class PostService {
         }
 
         postRepository.save(post);
+        user.increasePostCount();
+
         return PostResponse.from(post);
     }
 
@@ -87,13 +103,14 @@ public class PostService {
         }
             return PostResponse.from(post);
     }
-
     // 게시글 삭제
+
     @Transactional
     public void delete(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         post.delete();
+        post.getUser().decreasePostCount();
     }
 }

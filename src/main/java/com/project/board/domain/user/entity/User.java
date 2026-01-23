@@ -53,6 +53,16 @@ public class User extends BaseEntity {
         this.deleted = false;
     }
 
+    public void increasePostCount() {
+        this.postCount++;
+    }
+
+    public void decreasePostCount() {
+        if (this.postCount > 0) {
+            this.postCount--;
+        }
+    }
+
     //이넘을 이렇게 내부 클래스로 만들어도 괜찮나? 분리하는게 낫지 않나?
     public enum Role{
         USER, ADMIN
