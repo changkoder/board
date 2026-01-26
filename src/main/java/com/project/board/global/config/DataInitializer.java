@@ -30,9 +30,15 @@ public class DataInitializer {
         Category category3 = categoryRepository.save(new Category("정보공유"));
 
         User user = userRepository.save(User.builder()
-                .email("test@test.com")
+                .email("test1@test.com")
                 .password(passwordEncoder.encode("1234"))
-                .nickname("테스트유저")
+                .nickname("테스트유저1")
+                .build());
+
+        userRepository.save(User.builder()
+                .email("test2@test.com")
+                .password(passwordEncoder.encode("1234"))
+                .nickname("테스트유저2")
                 .build());
 
         Post post1 = postRepository.save(Post.builder()

@@ -39,9 +39,17 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostResponse>> findById(
-            @PathVariable Long postId
+            @PathVariable Long postId,
+            @RequestParam(required = false) Long userId
     ){
-        PostResponse response = postService.findById(postId);
+        PostResponse response;
+
+        if(userId != null){ //로그인 회원 조회 엔티티 추가, 비회원은 x
+            response = postService.findById(postId, userId);
+        } else {
+            response = postService.findById(postId);
+        }
+
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

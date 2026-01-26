@@ -10,6 +10,8 @@ import com.project.board.domain.post.entity.PostImage;
 import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
+import com.project.board.domain.viewlog.entity.ViewLog;
+import com.project.board.domain.viewlog.repository.ViewLogRepository;
 import com.project.board.global.exception.CustomException;
 import com.project.board.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final ViewLogRepository viewLogRepository;
 
     public Page<PostResponse> findAll(Long categoryId, Pageable pageable){
         Page<Post> posts;
@@ -71,9 +74,26 @@ public class PostService {
     }
 
 
+    //비로그인 유저용
     public PostResponse findById(Long postId){
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        return PostResponse.from(post);
+    }
+
+    @Transactional //로그인 유저용
+    public PostResponse findById(Long postId, Long userId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if(!viewLogRepository.existsByUserAndPost(userId, postId)){
+            viewLogRepository.save(new ViewLog(user, post));
+            post.increaseViewCount();
+        }
 
         return PostResponse.from(post);
     }
