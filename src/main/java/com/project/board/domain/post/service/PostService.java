@@ -4,6 +4,7 @@ import com.project.board.domain.category.entity.Category;
 import com.project.board.domain.category.repository.CategoryRepository;
 import com.project.board.domain.post.dto.PostCreateRequest;
 import com.project.board.domain.post.dto.PostResponse;
+import com.project.board.domain.post.dto.PostSearchCondition;
 import com.project.board.domain.post.dto.PostUpdateRequest;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.entity.PostImage;
@@ -39,6 +40,11 @@ public class PostService {
             posts = postRepository.findAllActive(pageable);
         }
 
+        return posts.map(post -> PostResponse.from(post));
+    }
+
+    public Page<PostResponse> search(PostSearchCondition condition, Pageable pageable){
+        Page<Post> posts = postRepository.search(condition, pageable);
         return posts.map(post -> PostResponse.from(post));
     }
 

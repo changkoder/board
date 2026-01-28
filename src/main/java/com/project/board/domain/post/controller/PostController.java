@@ -2,6 +2,7 @@ package com.project.board.domain.post.controller;
 
 import com.project.board.domain.post.dto.PostCreateRequest;
 import com.project.board.domain.post.dto.PostResponse;
+import com.project.board.domain.post.dto.PostSearchCondition;
 import com.project.board.domain.post.dto.PostUpdateRequest;
 import com.project.board.domain.post.service.PostService;
 import com.project.board.global.common.ApiResponse;
@@ -25,6 +26,15 @@ public class PostController {
     Pageable pageable
     ){
         Page<PostResponse> response = postService.findAll(categoryId, pageable);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<PostResponse>>> search(
+            @ModelAttribute PostSearchCondition condition,
+            Pageable pageable
+    ) {
+        Page<PostResponse> response = postService.search(condition, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
