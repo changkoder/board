@@ -1,9 +1,6 @@
 package com.project.board.domain.post.controller;
 
-import com.project.board.domain.post.dto.PostCreateRequest;
-import com.project.board.domain.post.dto.PostResponse;
-import com.project.board.domain.post.dto.PostSearchCondition;
-import com.project.board.domain.post.dto.PostUpdateRequest;
+import com.project.board.domain.post.dto.*;
 import com.project.board.domain.post.service.PostService;
 import com.project.board.global.common.ApiResponse;
 import jakarta.validation.Valid;
@@ -13,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -21,20 +20,29 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<PostResponse>>> findAll(
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> findAll(
     @RequestParam(required = false) Long categoryId,
     Pageable pageable
     ){
-        Page<PostResponse> response = postService.findAll(categoryId, pageable);
+        Page<PostListResponse> response = postService.findAll(categoryId, pageable);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/infinite")
+    public ResponseEntity<ApiResponse<List<PostListResponse>>> findAllNoOffset(
+            @RequestParam(required = false) Long lastPostId,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        List<PostListResponse> response = postService.findAllNoOffset(lastPostId, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<Page<PostResponse>>> search(
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> search(
             @ModelAttribute PostSearchCondition condition,
             Pageable pageable
     ) {
-        Page<PostResponse> response = postService.search(condition, pageable);
+        Page<PostListResponse> response = postService.search(condition, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -76,4 +84,11 @@ public class PostController {
         postService.delete(postId);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
-}
+
+    @GetMapping("/popular")
+    public ResponseEntity<ApiResponse<List<PostListResponse>>> findPopularPosts() {
+        List<PostListResponse> response = postService.findPopularPosts();
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    }

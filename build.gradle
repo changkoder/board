@@ -32,6 +32,10 @@ dependencies {
 
 	// Querydsl 의존성 추가
 	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+
+	implementation 'p6spy:p6spy:3.9.1'
+	implementation 'com.github.gavlyukovskiy:datasource-decorator-spring-boot-autoconfigure:1.9.0'
+
 	annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
 	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
 	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'

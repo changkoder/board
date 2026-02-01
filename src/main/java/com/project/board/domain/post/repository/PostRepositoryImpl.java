@@ -3,6 +3,7 @@ package com.project.board.domain.post.repository;
 import com.project.board.domain.post.dto.PostSearchCondition;
 import com.project.board.domain.post.dto.SearchType;
 import com.project.board.domain.post.entity.Post;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.project.board.domain.post.entity.QPost.*;
@@ -25,6 +27,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
         List<Post> content = queryFactory
                 .selectFrom(post)
+                .join(post.user).fetchJoin()
+                .join(post.category).fetchJoin()
+                //.leftJoin(post.images).fetchJoin()
                 .where(post.deleted.eq(false),
                         post.hidden.eq(false),
                         categoryIdEq(condition.getCategoryId()),
@@ -47,6 +52,41 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
         return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
         // 이 유틸 메서드 파라미터에 들어가는건 뭐지
+    }
+
+    @Override
+    public List<Post> findAllNoOffset(Long lastPostId, int size) {
+        return queryFactory
+                .selectFrom(post)
+                .join(post.user).fetchJoin()
+                .join(post.category).fetchJoin()
+                .where(
+                        post.deleted.eq(false),
+                        post.hidden.eq(false),
+                        ltPostId(lastPostId)
+                ).orderBy(post.id.desc())
+                .limit(size)
+                .fetch();
+    }
+
+    @Override
+    public List<Post> findPopularPosts(int days, int limit) {
+        LocalDateTime startDate = LocalDateTime.now().minusDays(days);
+
+        return  queryFactory
+                .selectFrom(post)
+                .where(
+                        post.deleted.eq(false),
+                        post.hidden.eq(false),
+                        post.createdAt.goe(startDate)
+                )
+                .orderBy(post.likeCount.desc())
+                .limit(limit)
+                .fetch();
+    }
+
+    private BooleanExpression ltPostId(Long lastPostId) {
+        return lastPostId != null ? post.id.lt(lastPostId) : null;
     }
 
     private BooleanExpression categoryIdEq(Long categoryId) {

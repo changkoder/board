@@ -2,10 +2,7 @@ package com.project.board.domain.post.service;
 
 import com.project.board.domain.category.entity.Category;
 import com.project.board.domain.category.repository.CategoryRepository;
-import com.project.board.domain.post.dto.PostCreateRequest;
-import com.project.board.domain.post.dto.PostResponse;
-import com.project.board.domain.post.dto.PostSearchCondition;
-import com.project.board.domain.post.dto.PostUpdateRequest;
+import com.project.board.domain.post.dto.*;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.entity.PostImage;
 import com.project.board.domain.post.repository.PostRepository;
@@ -21,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,7 +30,7 @@ public class PostService {
     private final CategoryRepository categoryRepository;
     private final ViewLogRepository viewLogRepository;
 
-    public Page<PostResponse> findAll(Long categoryId, Pageable pageable){
+    public Page<PostListResponse> findAll(Long categoryId, Pageable pageable){
         Page<Post> posts;
 
         if(categoryId != null){
@@ -40,12 +39,21 @@ public class PostService {
             posts = postRepository.findAllActive(pageable);
         }
 
-        return posts.map(post -> PostResponse.from(post));
+        return posts.map(post -> PostListResponse.from(post));
     }
 
-    public Page<PostResponse> search(PostSearchCondition condition, Pageable pageable){
+    public List<PostListResponse> findAllNoOffset(Long lastPostId, int size){
+        List<Post> posts = postRepository.findAllNoOffset(lastPostId, size);
+        return posts.stream()
+                .map(post -> PostListResponse.from(post))
+                .toList();
+
+
+    }
+
+    public Page<PostListResponse> search(PostSearchCondition condition, Pageable pageable){
         Page<Post> posts = postRepository.search(condition, pageable);
-        return posts.map(post -> PostResponse.from(post));
+        return posts.map(post -> PostListResponse.from(post));
     }
 
     @Transactional
@@ -138,5 +146,12 @@ public class PostService {
 
         post.delete();
         post.getUser().decreasePostCount();
+    }
+
+    public List<PostListResponse> findPopularPosts(){
+        List<Post> posts = postRepository.findPopularPosts(7, 10);
+        return posts.stream()
+                .map(post -> PostListResponse.from(post))
+                .toList();
     }
 }
