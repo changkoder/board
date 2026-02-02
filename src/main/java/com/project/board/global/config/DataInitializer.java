@@ -10,9 +10,11 @@ import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+@Profile("local")
 @Component
 @RequiredArgsConstructor
 public class DataInitializer {
