@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +51,7 @@ public class Post extends BaseEntity {
     private boolean deleted;
 
     //@BatchSize(size = 100) 나중에 포스트 목록에 썸네일 추가시 사용 예정
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)// 이것도 기억이 잘 안나네 이건 객체 그래프 탐색용이라 했던거같은데
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostImage> images = new ArrayList<>();
 
     @Builder

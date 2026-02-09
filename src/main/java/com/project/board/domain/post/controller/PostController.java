@@ -49,7 +49,7 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<PostResponse>> create(
-            @RequestParam Long userId, //나중에 jwt에서 추출
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody PostCreateRequest request
             ){
         PostResponse response = postService.create(userId, request);
@@ -59,7 +59,7 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostResponse>> findById(
             @PathVariable Long postId,
-            @RequestParam(required = false) Long userId
+           @AuthenticationPrincipal Long userId
     ){
         PostResponse response;
 

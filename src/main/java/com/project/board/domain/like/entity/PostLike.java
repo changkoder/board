@@ -3,6 +3,7 @@ package com.project.board.domain.like.entity;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
         @UniqueConstraint(columnNames = {"user_id", "post_id"})
 })
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostLike {
 
     @Id

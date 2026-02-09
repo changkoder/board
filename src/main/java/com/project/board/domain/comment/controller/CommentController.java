@@ -24,13 +24,13 @@ public class CommentController {
             @PathVariable Long postId
     ){
         List<CommentResponse> response = commentService.findByPostId(postId);
-        return ResponseEntity.ok(ApiResponse.success(response));//restcontorller랑 responseEntity기능 차이가 뭐더라
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @PostMapping("/api/posts/{postId}/comments")//@postMapping("/api/comments/{commentId}") 왜 이런식으로 안하지 굳이 posts를 한 이유는
+    @PostMapping("/api/posts/{postId}/comments")
     public ResponseEntity<ApiResponse<CommentResponse>> create(
             @PathVariable Long postId,
-            @RequestParam Long userId,  // 나중에 JWT에서 추출
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody CommentCreateRequest request) {
         CommentResponse response = commentService.create(postId, userId, request);
         return ResponseEntity.ok(ApiResponse.success(response));

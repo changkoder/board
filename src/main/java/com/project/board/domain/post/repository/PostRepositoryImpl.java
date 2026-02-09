@@ -3,7 +3,6 @@ package com.project.board.domain.post.repository;
 import com.project.board.domain.post.dto.PostSearchCondition;
 import com.project.board.domain.post.dto.SearchType;
 import com.project.board.domain.post.entity.Post;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -40,7 +39,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        JPAQuery<Long> countQuery = queryFactory //카운트는 비정규화로 한거 아니였나 이건 일일이 카운트 쿼리를 날려서 세야하나
+        JPAQuery<Long> countQuery = queryFactory
                 .select(post.count())
                 .from(post)
                 .where(
@@ -51,7 +50,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
-        // 이 유틸 메서드 파라미터에 들어가는건 뭐지
     }
 
     @Override
@@ -75,6 +73,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
         return  queryFactory
                 .selectFrom(post)
+                .join(post.user).fetchJoin()
+                .join(post.category).fetchJoin()
                 .where(
                         post.deleted.eq(false),
                         post.hidden.eq(false),
@@ -90,7 +90,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
     }
 
     private BooleanExpression categoryIdEq(Long categoryId) {
-        return categoryId != null ? post.category.id.eq(categoryId) : null; //이걸 굳이 메서드를 따로 뽑는이유?
+        return categoryId != null ? post.category.id.eq(categoryId) : null;
     }
 
     private BooleanExpression searchKeyword(SearchType searchType, String keyword) {
@@ -98,7 +98,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
             return null;
         }
 
-        return switch (searchType) {// 서치 타입을 이넘으로 만들면 좀 오버하는건가
+        return switch (searchType) {
             case TITLE -> post.title.contains(keyword);
             case CONTENT -> post.content.contains(keyword);
             case AUTHOR -> post.user.nickname.contains(keyword);

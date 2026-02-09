@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)//왜 읽기전용으로 해놓은거야?
+@Transactional(readOnly = true)
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -46,12 +46,13 @@ public class AuthService {
         return new UserResponse(savedUser);
     }
 
+    @Transactional
     public TokenResponse login(LoginRequest request){
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);//패스워드 인코더가 뭐지? 그리고 디비에는 암호화된 상태의 비밀번호가 저장되나
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getRole().name());
@@ -82,7 +83,7 @@ public class AuthService {
         }
 
         RefreshToken savedToken = refreshTokenRepository.findByToken(request.getRefreshToken())
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_TOKEN));//위에서 유효성 검증을 했는데, 디비에 없을수도 있나
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_TOKEN));
 
         Long userId = jwtTokenProvider.getUserId(request.getRefreshToken());
         String role = jwtTokenProvider.getRole(request.getRefreshToken());
