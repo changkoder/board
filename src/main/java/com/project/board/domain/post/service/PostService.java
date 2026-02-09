@@ -113,9 +113,13 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse update(Long postId, PostUpdateRequest request){
+    public PostResponse update(Long postId, Long userId, PostUpdateRequest request){
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if(!post.getUser().getId().equals(userId)){
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -140,9 +144,13 @@ public class PostService {
     // 게시글 삭제
 
     @Transactional
-    public void delete(Long postId) {
+    public void delete(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         post.delete();
         post.getUser().decreasePostCount();

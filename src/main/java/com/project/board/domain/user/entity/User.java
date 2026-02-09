@@ -53,6 +53,23 @@ public class User extends BaseEntity {
         this.deleted = false;
     }
 
+    public void updateProfile(String nickname, String profileImg) {
+        if (nickname != null) {
+            this.nickname = nickname;
+        }
+        if (profileImg != null) {
+            this.profileImg = profileImg;
+        }
+    }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
+    }
+
+    public void delete() {
+        this.deleted = true;
+    }
+
     public void increasePostCount() {
         this.postCount++;
     }

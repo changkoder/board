@@ -8,6 +8,7 @@ import com.project.board.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,15 +39,17 @@ public class CommentController {
     @PatchMapping("/api/comments/{commentId}")
     public ResponseEntity<ApiResponse<CommentResponse>> update(
             @PathVariable Long commentId,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody CommentUpdateRequest request) {
-        CommentResponse response = commentService.update(commentId, request);
+        CommentResponse response = commentService.update(commentId, userId, request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @DeleteMapping("/api/comments/{commentId}")
     public ResponseEntity<ApiResponse<Void>> delete(
-            @PathVariable Long commentId) {
-        commentService.delete(commentId);
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal Long userId) {
+        commentService.delete(commentId, userId);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

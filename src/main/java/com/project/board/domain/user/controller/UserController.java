@@ -1,36 +1,49 @@
 package com.project.board.domain.user.controller;
 
-import com.project.board.domain.user.dto.LoginRequest;
-import com.project.board.domain.user.dto.SignupRequest;
+import com.project.board.domain.user.dto.PasswordChangeRequest;
 import com.project.board.domain.user.dto.UserResponse;
+import com.project.board.domain.user.dto.UserUpdateRequest;
 import com.project.board.domain.user.service.UserService;
 import com.project.board.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
-@RestController//restcontroller 기능이 뭐더라
-@RequestMapping("/api/auth")
+@RestController
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService; //왜 파이널을 붙이더라
+    private final UserService userService;
 
-    @PostMapping("/signup")                                        //requestbody 어노테이션의 기능
-    public ResponseEntity<ApiResponse<UserResponse>> signup(@Valid @RequestBody SignupRequest request){
-        UserResponse response = userService.signup(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(response, "회원가입 성공"));
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> getMyInfo(@AuthenticationPrincipal Long userId){
+        UserResponse response = userService.getMyInfo(userId);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<UserResponse>> login(@Valid @RequestBody LoginRequest request){
-        UserResponse response = userService.login(request);
-        return ResponseEntity.ok(ApiResponse.success(response, "로그인 성공"));
+    @PatchMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> updateMyInfo(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody UserUpdateRequest request) {
+        UserResponse response = userService.updateMyInfo(userId, request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PatchMapping("/me/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody PasswordChangeRequest request) {
+        userService.changePassword(userId, request);
+        return ResponseEntity.ok(ApiResponse.success(null, "비밀번호 변경 성공"));
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<Void>> deleteAccount(@AuthenticationPrincipal Long userId) {
+        userService.deleteAccount(userId);
+        return ResponseEntity.ok(ApiResponse.success(null, "회원 탈퇴 성공"));
     }
 }

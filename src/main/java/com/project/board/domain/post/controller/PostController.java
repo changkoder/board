@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -74,14 +75,17 @@ public class PostController {
     @PatchMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostResponse>> update(
             @PathVariable Long postId,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody PostUpdateRequest request) {
-        PostResponse response = postService.update(postId, request);
+        PostResponse response = postService.update(postId, userId, request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long postId) {
-        postService.delete(postId);
+    public ResponseEntity<ApiResponse<Void>> delete(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal Long userId) {
+        postService.delete(postId, userId);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 

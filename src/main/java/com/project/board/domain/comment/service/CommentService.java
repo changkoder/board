@@ -75,9 +75,13 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponse update(Long commentId, CommentUpdateRequest request){
+    public CommentResponse update(Long commentId, Long userId, CommentUpdateRequest request){
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         comment.update(request.getContent());//근데 이런 엔티티안에 만드는 메서드를 뭐라하더라, 그리고 어떤 것들을 주로 엔티티안에 만들지
 
@@ -85,9 +89,13 @@ public class CommentService {
     }
 
     @Transactional
-    public void delete(Long commentId) {
+    public void delete(Long commentId, Long userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         comment.delete();
         comment.getPost().decreaseCommentCount();
