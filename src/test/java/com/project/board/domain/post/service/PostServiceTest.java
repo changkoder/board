@@ -4,9 +4,11 @@ import com.project.board.domain.category.entity.Category;
 import com.project.board.domain.category.repository.CategoryRepository;
 import com.project.board.domain.post.dto.PostCreateRequest;
 import com.project.board.domain.post.dto.PostResponse;
+import com.project.board.domain.post.dto.PostUpdateRequest;
 import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
+import com.project.board.global.exception.CustomException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,11 +68,52 @@ class PostServiceTest {
         PostResponse post = postService.create(user.getId(), request);
 
         // when
-        postService.delete(post.getId());
+        postService.delete(post.getId(), user.getId());
 
         // then
         User foundUser = userRepository.findById(user.getId()).orElseThrow();
         assertThat(foundUser.getPostCount()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("타인 글 수정 시 예외 발생")
+    void update_otherUserPost_throwsException() {
+        // given
+        PostCreateRequest request = createPostRequest("제목", "내용", category.getId());
+        PostResponse post = postService.create(user.getId(), request);
+
+        User otherUser = userRepository.save(User.builder()
+                .email("other@test.com")
+                .password("password")
+                .nickname("other")
+                .build());
+
+        PostUpdateRequest updateRequest = new PostUpdateRequest();
+        ReflectionTestUtils.setField(updateRequest, "title", "수정된 제목");
+        ReflectionTestUtils.setField(updateRequest, "content", "수정된 내용");
+        ReflectionTestUtils.setField(updateRequest, "categoryId", category.getId());
+
+        // when & then
+        assertThatThrownBy(() -> postService.update(post.getId(), otherUser.getId(), updateRequest))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    @DisplayName("타인 글 삭제 시 예외 발생")
+    void delete_otherUserPost_throwsException() {
+        // given
+        PostCreateRequest request = createPostRequest("제목", "내용", category.getId());
+        PostResponse post = postService.create(user.getId(), request);
+
+        User otherUser = userRepository.save(User.builder()
+                .email("other@test.com")
+                .password("password")
+                .nickname("other")
+                .build());
+
+        // when & then
+        assertThatThrownBy(() -> postService.delete(post.getId(), otherUser.getId()))
+                .isInstanceOf(CustomException.class);
     }
 
     private PostCreateRequest createPostRequest(String title, String content, Long categoryId) {

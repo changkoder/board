@@ -4,12 +4,14 @@ import com.project.board.domain.category.entity.Category;
 import com.project.board.domain.category.repository.CategoryRepository;
 import com.project.board.domain.comment.dto.CommentCreateRequest;
 import com.project.board.domain.comment.dto.CommentResponse;
+import com.project.board.domain.comment.dto.CommentUpdateRequest;
 import com.project.board.domain.comment.entity.Comment;
 import com.project.board.domain.comment.repository.CommentRepository;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
+import com.project.board.global.exception.CustomException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,7 +80,7 @@ class CommentServiceTest {
         CommentResponse comment = commentService.create(post.getId(), user.getId(), request);
 
         // when
-        commentService.delete(comment.getId());
+        commentService.delete(comment.getId(), user.getId());
 
         // then
         assertThat(post.getCommentCount()).isEqualTo(0);
@@ -120,6 +122,45 @@ class CommentServiceTest {
         // then
         Comment savedReplyToReply = commentRepository.findById(replyToReply.getId()).orElseThrow();
         assertThat(savedReplyToReply.getParent().getId()).isEqualTo(parentComment.getId());
+    }
+
+    @Test
+    @DisplayName("타인 댓글 수정 시 예외 발생")
+    void update_otherUserComment_throwsException() {
+        // given
+        CommentCreateRequest request = createCommentRequest("테스트 댓글", null);
+        CommentResponse comment = commentService.create(post.getId(), user.getId(), request);
+
+        User otherUser = userRepository.save(User.builder()
+                .email("other@test.com")
+                .password("password")
+                .nickname("other")
+                .build());
+
+        CommentUpdateRequest updateRequest = new CommentUpdateRequest();
+        ReflectionTestUtils.setField(updateRequest, "content", "수정된 댓글");
+
+        // when & then
+        assertThatThrownBy(() -> commentService.update(comment.getId(), otherUser.getId(), updateRequest))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    @DisplayName("타인 댓글 삭제 시 예외 발생")
+    void delete_otherUserComment_throwsException() {
+        // given
+        CommentCreateRequest request = createCommentRequest("테스트 댓글", null);
+        CommentResponse comment = commentService.create(post.getId(), user.getId(), request);
+
+        User otherUser = userRepository.save(User.builder()
+                .email("other@test.com")
+                .password("password")
+                .nickname("other")
+                .build());
+
+        // when & then
+        assertThatThrownBy(() -> commentService.delete(comment.getId(), otherUser.getId()))
+                .isInstanceOf(CustomException.class);
     }
 
     private CommentCreateRequest createCommentRequest(String content, Long parentId) {

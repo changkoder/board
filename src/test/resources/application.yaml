@@ -16,6 +16,11 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
     show-sql: false
 
+jwt:
+  secret: YjJGa2MyUnpabVJ6WmpCaVptUXpOekk1T1RFMk5HWmlOR1UzWkRKa056ZzROV1l5TmpRNVlUaGtNR0V3WkRjeQ==
+  access-token-validity: 1800000
+  refresh-token-validity: 604800000
+
 logging:
   level:
     org.hibernate.SQL: off
