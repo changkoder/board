@@ -5,6 +5,8 @@ import com.project.board.domain.comment.dto.CommentResponse;
 import com.project.board.domain.comment.dto.CommentUpdateRequest;
 import com.project.board.domain.comment.entity.Comment;
 import com.project.board.domain.comment.repository.CommentRepository;
+import com.project.board.domain.notification.entity.Notification;
+import com.project.board.domain.notification.service.NotificationService;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
@@ -25,6 +27,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public List<CommentResponse> findByPostId(Long postId){
         List<Comment> parents = commentRepository.findParentsByPostId(postId);
@@ -70,6 +73,26 @@ public class CommentService {
 
         commentRepository.save(comment);
         post.increaseCommentCount();
+
+        if (parent != null) {
+            notificationService.notify(
+                    parent.getUser(),
+                    Notification.NotificationType.REPLY,
+                    post.getId(),
+                    parent.getId(),
+                    userId,
+                    user.getNickname() + "님이 회원님의 댓글에 답글을 남겼습니다."
+            );
+        } else {
+            notificationService.notify(
+                    post.getUser(),
+                    Notification.NotificationType.COMMENT,
+                    post.getId(),
+                    comment.getId(),
+                    userId,
+                    user.getNickname() + "님이 회원님의 글에 댓글을 남겼습니다."
+            );
+        }
 
         return CommentResponse.from(comment); //자식 목록은 안넣어도되나?
     }

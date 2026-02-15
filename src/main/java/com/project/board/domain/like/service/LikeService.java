@@ -6,6 +6,8 @@ import com.project.board.domain.like.entity.CommentLike;
 import com.project.board.domain.like.entity.PostLike;
 import com.project.board.domain.like.repository.CommentLikeRepository;
 import com.project.board.domain.like.repository.PostLikeRepository;
+import com.project.board.domain.notification.entity.Notification;
+import com.project.board.domain.notification.service.NotificationService;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
@@ -28,6 +30,7 @@ public class LikeService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public boolean togglePostLike(Long userId, Long postId){
@@ -46,6 +49,16 @@ public class LikeService {
         } else {
             postLikeRepository.save(new PostLike(user, post));
             post.increaseLikeCount();
+
+            notificationService.notify(
+                    post.getUser(),
+                    Notification.NotificationType.POST_LIKE,
+                    post.getId(),
+                    null,
+                    userId,
+                    user.getNickname() + "님이 회원님의 글을 좋아합니다."
+            );
+
             return true; // 좋아요 추가됨
         }
     }
@@ -67,6 +80,16 @@ public class LikeService {
         } else {
             commentLikeRepository.save(new CommentLike(user, comment));
             comment.increaseLikeCount();
+
+            notificationService.notify(
+                    comment.getUser(),
+                    Notification.NotificationType.COMMENT_LIKE,
+                    comment.getPost().getId(),
+                    comment.getId(),
+                    userId,
+                    user.getNickname() + "님이 회원님의 댓글을 좋아합니다."
+            );
+
             return true; // 좋아요 추가됨
         }
     }
