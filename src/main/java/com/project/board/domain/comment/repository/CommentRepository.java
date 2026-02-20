@@ -25,4 +25,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "AND c.hidden = false " +
             "ORDER BY c.createdAt ASC")
     List<Comment> findChildrenByParentId(@Param("parentId") Long parentId);
+
+    @Query("SELECT c FROM Comment c JOIN FETCH c.user JOIN FETCH c.post WHERE c.hidden = true AND c.deleted = false")
+    List<Comment> findByHiddenTrueAndDeletedFalse();
+
+    // 마이페이지 - 내가 쓴 댓글
+    @Query("SELECT c FROM Comment c JOIN FETCH c.post WHERE c.user.id = :userId AND c.deleted = false ORDER BY c.createdAt DESC")
+    List<Comment> findByUserId(@Param("userId") Long userId);
 }

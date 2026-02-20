@@ -42,12 +42,12 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private boolean deleted;
 
-    @Builder//이 어노테이션은 뭘까
-    public User(String email, String password, String nickname) {
+    @Builder
+    public User(String email, String password, String nickname, Role role) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-        this.role = Role.USER;
+        this.role = role != null ? role : Role.USER;
         this.status = Status.ACTIVE;
         this.postCount = 0;
         this.deleted = false;
@@ -82,10 +82,19 @@ public class User extends BaseEntity {
 
     //이넘을 이렇게 내부 클래스로 만들어도 괜찮나? 분리하는게 낫지 않나?
     public enum Role{
-        USER, ADMIN
+        USER, ADMIN;
+
     }
 
     public enum Status{
-        ACTIVE, BLOCKED
+        ACTIVE, BLOCKED;
+    }
+
+    public void block() {
+        this.status = Status.BLOCKED;
+    }
+
+    public void unblock() {
+        this.status = Status.ACTIVE;
     }
 }
