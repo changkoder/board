@@ -30,7 +30,12 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
 
     //알림
-    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다.");
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다."),
+
+    //신고
+    DUPLICATE_REPORT(HttpStatus.CONFLICT, "이미 신고한 게시글/댓글입니다."),
+    CANNOT_REPORT_OWN(HttpStatus.BAD_REQUEST, "본인의 글/댓글은 신고할 수 없습니다."),
+    ALREADY_HIDDEN(HttpStatus.BAD_REQUEST, "이미 숨김 처리된 게시글/댓글입니다.");
 
     private final HttpStatus status;
     private final String message;
