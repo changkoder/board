@@ -32,12 +32,12 @@ public class DataInitializer {
         Category category3 = categoryRepository.save(new Category("정보공유"));
 
         //관리자 생성
-        User.builder()
+        userRepository.save(User.builder()
                 .email("admin@test.com")
                 .password(passwordEncoder.encode("admin1234"))
                 .nickname("관리자")
                 .role(User.Role.ADMIN)  // 명시적으로 ADMIN
-                .build();
+                .build());
 
         User user = userRepository.save(User.builder()
                 .email("test1@test.com")
