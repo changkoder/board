@@ -3,7 +3,13 @@
     "allow": [
       "Bash(node:*)",
       "Bash(npm install:*)",
-      "Bash(newman run:*)"
+      "Bash(newman run:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(./gradlew bootRun:*)"
     ]
   }
 }
