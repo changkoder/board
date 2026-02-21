@@ -6,6 +6,7 @@ import com.project.board.domain.post.dto.*;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.entity.PostImage;
 import com.project.board.domain.post.repository.PostRepository;
+import com.project.board.domain.bookmark.repository.BookmarkRepository;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.domain.viewlog.entity.ViewLog;
@@ -29,6 +30,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final ViewLogRepository viewLogRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     public Page<PostListResponse> findAll(Long categoryId, Pageable pageable){
         Page<Post> posts;
@@ -109,7 +111,8 @@ public class PostService {
             post.increaseViewCount();
         }
 
-        return PostResponse.from(post);
+        boolean bookmarked = bookmarkRepository.existsByUserAndPost(userId, postId);
+        return PostResponse.from(post, bookmarked);
     }
 
     @Transactional

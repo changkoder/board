@@ -10,11 +10,13 @@ public class UserResponse {
     private final String email;
     private final String nickname;
     private final String profileImg;
+    private final String role;
 
     public UserResponse(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();
         this.profileImg = user.getProfileImg();
+        this.role = user.getRole().name();
     }
 }

@@ -9,7 +9,17 @@
       "Bash(git status:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(./gradlew bootRun:*)"
+      "Bash(./gradlew bootRun:*)",
+      "Bash(npm create:*)",
+      "Bash(npx vite build:*)",
+      "Bash(git -C \"C:\\\\lch\\\\project\\\\board\" log --name-status --oneline -20)",
+      "Bash(git -C \"C:\\\\lch\\\\project\\\\board\" log --all --pretty=format:\"%h %s\")",
+      "Bash(git -C \"C:\\\\lch\\\\project\\\\board\" show --stat e182831)",
+      "Bash(git -C \"C:\\\\lch\\\\project\\\\board\" show --name-only 758b34c)",
+      "Bash(git -C \"C:\\\\lch\\\\project\\\\board\" show --stat 758b34c)",
+      "Bash(git -C \"C:\\\\lch\\\\project\\\\board\" show --name-only 385a4d9)",
+      "Bash(git -C \"C:\\\\lch\\\\project\\\\board\" status)",
+      "Bash(git -C \"C:\\\\lch\\\\project\\\\board\" branch -a)"
     ]
   }
 }

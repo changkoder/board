@@ -42,6 +42,22 @@ public class AdminService {
                 .toList();
     }
 
+    // 게시글 숨기기
+    @Transactional
+    public void hidePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        post.hide();
+    }
+
+    // 댓글 숨기기
+    @Transactional
+    public void hideComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        comment.hide();
+    }
+
     // 게시글 숨김 해제
     @Transactional
     public void restorePost(Long postId) {

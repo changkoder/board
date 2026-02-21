@@ -30,6 +30,18 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @PatchMapping("/posts/{postId}/hide")
+    public ResponseEntity<ApiResponse<Void>> hidePost(@PathVariable Long postId) {
+        adminService.hidePost(postId);
+        return ResponseEntity.ok(ApiResponse.success(null, "게시글 숨김 처리 완료"));
+    }
+
+    @PatchMapping("/comments/{commentId}/hide")
+    public ResponseEntity<ApiResponse<Void>> hideComment(@PathVariable Long commentId) {
+        adminService.hideComment(commentId);
+        return ResponseEntity.ok(ApiResponse.success(null, "댓글 숨김 처리 완료"));
+    }
+
     @PatchMapping("/posts/{postId}/restore")
     public ResponseEntity<ApiResponse<Void>> restorePost(@PathVariable Long postId) {
         adminService.restorePost(postId);

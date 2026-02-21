@@ -61,6 +61,10 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
+        if(passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+            throw new CustomException(ErrorCode.SAME_PASSWORD);
+        }
+
         user.changePassword(passwordEncoder.encode(request.getNewPassword()));
     }
 
@@ -68,6 +72,10 @@ public class UserService {
     public void deleteAccount(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getRole() == User.Role.ADMIN) {
+            throw new CustomException(ErrorCode.CANNOT_DELETE_ADMIN);
+        }
 
         user.delete();
     }

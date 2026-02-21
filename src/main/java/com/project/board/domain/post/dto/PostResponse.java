@@ -23,6 +23,7 @@ public class PostResponse {
     private List<String> imageUrls;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean bookmarked;
 
     public static PostResponse from(Post post){
         return PostResponse.builder()
@@ -40,6 +41,27 @@ public class PostResponse {
                         .toList())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .bookmarked(false)
+                .build();
+    }
+
+    public static PostResponse from(Post post, boolean bookmarked){
+        return PostResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .categoryName(post.getCategory().getName())
+                .authorId(post.getUser().getId())
+                .authorNickname(post.getUser().getNickname())
+                .viewCount(post.getViewCount())
+                .likeCount(post.getLikeCount())
+                .commentCount(post.getCommentCount())
+                .imageUrls(post.getImages().stream()
+                        .map(image -> image.getImageUrl())
+                        .toList())
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .bookmarked(bookmarked)
                 .build();
     }
 }
