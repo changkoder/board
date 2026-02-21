@@ -1312,6 +1312,41 @@
 			"description": "권한 체크 및 에러 응답 확인용.\n⚠️ 회원 탈퇴(11-3)는 시나리오 마지막에 실행할 것.",
 			"item": [
 				{
+					"name": "11-0. 재로그인 (에러 테스트용)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.globals.set('accessToken', jsonData.data.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test1@test.com\",\n  \"password\": \"87654321\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "로그아웃 후 에러 테스트를 위한 재로그인. 비밀번호는 8-3에서 변경된 87654321."
+					},
+					"response": []
+				},
+				{
 					"name": "11-1. 관리자 API에 일반유저 접근 (403)",
 					"event": [
 						{
@@ -1344,14 +1379,14 @@
 					"response": []
 				},
 				{
-					"name": "11-2. 토큰 없이 수정 요청 (403)",
+					"name": "11-2. 토큰 없이 수정 요청 (401)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"인증 없이 접근 차단 확인 (403)\", function () {",
-									"    pm.response.to.have.status(403);",
+									"pm.test(\"401 Unauthorized 확인\", function () {",
+									"    pm.response.to.have.status(401);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -1375,7 +1410,7 @@
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "posts", "1"]
 						},
-						"description": "Authorization 헤더 없이 게시글 수정 요청 → 403 Forbidden (Spring Security 기본 동작: 커스텀 AuthenticationEntryPoint 미설정 시 401이 아닌 403 반환)."
+						"description": "Authorization 헤더 없이 게시글 수정 요청 → 401 Unauthorized."
 					},
 					"response": []
 				},
