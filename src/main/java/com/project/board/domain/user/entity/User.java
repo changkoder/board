@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)//아 기본 생성자 만드는 이유가 뭐더라? 무슨 기술 떄문이라 했는데
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
 
     @Id
@@ -23,12 +23,12 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 20, unique = true)//멘션 기능을 위해 유니크 제약 추가
     private String nickname;
 
-    private String profileImg; //여기에는 왜 칼럼 어노테이션 안붙였지? 칼럼 어노테이션 기능이 뭐더라
+    private String profileImg;
 
-    @Enumerated(EnumType.STRING)//이 어노테이션 뭐더라
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 

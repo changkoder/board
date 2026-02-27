@@ -36,6 +36,10 @@ public class AuthService {
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
 
+        if(userRepository.existsByNickname(request.getNickname())){
+            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+        }
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))

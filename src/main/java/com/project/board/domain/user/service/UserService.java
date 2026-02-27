@@ -48,6 +48,12 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        if (request.getNickname() != null && !request.getNickname().equals(user.getNickname())) {
+            if (userRepository.existsByNickname(request.getNickname())) {
+                throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+            }
+        }
+
         user.updateProfile(request.getNickname(), request.getProfileImg());
         return new UserResponse(user);
     }
@@ -105,6 +111,22 @@ public class UserService {
         List<Bookmark> bookmarks = bookmarkRepository.findByUserIdWithPost(userId);
         return bookmarks.stream()
                 .map(bookmark -> PostListResponse.from(bookmark.getPost()))
+                .toList();
+    }
+
+    // === 추가: 다른 유저 프로필 조회 ===
+    public UserResponse getUserProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return new UserResponse(user);
+    }
+
+    // === 추가: 다른 유저가 쓴 글 목록 ===
+    public List<PostListResponse> getUserPosts(Long userId) {
+        List<Post> posts = postRepository.findByUserId(userId);
+        return posts.stream()
+                .map(PostListResponse::from)
                 .toList();
     }
 }

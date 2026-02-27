@@ -78,4 +78,18 @@ public class UserController {
         List<PostListResponse> response = userService.getMyBookmarkedPosts(userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    // === 추가: 다른 유저 프로필 조회 ===
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUserProfile(@PathVariable Long userId) {
+        UserResponse response = userService.getUserProfile(userId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    // === 추가: 다른 유저가 쓴 글 목록 ===
+    @GetMapping("/{userId}/posts")
+    public ResponseEntity<ApiResponse<List<PostListResponse>>> getUserPosts(@PathVariable Long userId) {
+        List<PostListResponse> response = userService.getUserPosts(userId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 }

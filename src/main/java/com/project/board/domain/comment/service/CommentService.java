@@ -17,7 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +32,10 @@ public class CommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+
+    //멘션 파싱용 정규식
+    private static final Pattern MENTION_PATTERN = Pattern.compile("@(\\S+)");
+
 
     public List<CommentResponse> findByPostId(Long postId){
         List<Comment> parents = commentRepository.findParentsByPostId(postId);
@@ -59,7 +67,7 @@ public class CommentService {
                     .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
             // 대대댓글 방지: 부모가 이미 대댓글이면 부모의 부모를 parent로
-            if(parent.getParent() != null){//이거보단 애초에 대댓글에는 댓글을 달수 없게 하면 되지 않나. 그건 프론트에서 만지면되나
+            if(parent.getParent() != null){
                parent = parent.getParent();
             }
         }
@@ -94,7 +102,40 @@ public class CommentService {
             );
         }
 
-        return CommentResponse.from(comment); //자식 목록은 안넣어도되나?
+        processMentions(comment, user, post);
+
+        return CommentResponse.from(comment);
+    }
+
+    private void processMentions(Comment comment, User author, Post post) {
+        Set<String> nicknames = extractMentions(comment.getContent());
+
+        for (String nickname : nicknames) {
+            userRepository.findByNickname(nickname).ifPresent(mentionedUser -> {
+                if (mentionedUser.getId().equals(author.getId())) {
+                    return;
+                }
+
+                notificationService.notify(
+                        mentionedUser,
+                        Notification.NotificationType.MENTION,
+                        post.getId(),
+                        comment.getId(),
+                        author.getId(),
+                        author.getNickname() + "님이 댓글에서 회원님을 멘션했습니다."
+                );
+            });
+        }
+    }
+
+    private Set<String> extractMentions(String content) {
+        LinkedHashSet<String> nicknames = new LinkedHashSet<>();
+        Matcher matcher = MENTION_PATTERN.matcher(content);
+
+        while (matcher.find()) {
+            nicknames.add(matcher.group(1));
+        }
+        return nicknames;
     }
 
     @Transactional
@@ -106,7 +147,7 @@ public class CommentService {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
-        comment.update(request.getContent());//근데 이런 엔티티안에 만드는 메서드를 뭐라하더라, 그리고 어떤 것들을 주로 엔티티안에 만들지
+        comment.update(request.getContent());
 
         return CommentResponse.from(comment);
     }
