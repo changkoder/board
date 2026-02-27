@@ -21,20 +21,20 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<PostListResponse>>> findAll(
+    public ResponseEntity<ApiResponse<PostListWithNoticeResponse>> findAll(
     @RequestParam(required = false) Long categoryId,
     Pageable pageable
     ){
-        Page<PostListResponse> response = postService.findAll(categoryId, pageable);
+        PostListWithNoticeResponse  response = postService.findAll(categoryId, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/infinite")
-    public ResponseEntity<ApiResponse<List<PostListResponse>>> findAllNoOffset(
+    public ResponseEntity<ApiResponse<PostListWithNoticeNoOffsetResponse>> findAllNoOffset(
             @RequestParam(required = false) Long lastPostId,
             @RequestParam(defaultValue = "10") int size
     ){
-        List<PostListResponse> response = postService.findAllNoOffset(lastPostId, size);
+        PostListWithNoticeNoOffsetResponse response = postService.findAllNoOffset(lastPostId, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

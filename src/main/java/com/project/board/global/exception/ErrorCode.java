@@ -26,6 +26,7 @@ public enum ErrorCode {
     //게시글
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
+    NOTICE_ADMIN_ONLY(HttpStatus.FORBIDDEN, "공지글은 관리자만 작성할 수 있습니다."),
 
     //댓글
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
@@ -42,7 +43,13 @@ public enum ErrorCode {
     ALREADY_BLOCKED(HttpStatus.BAD_REQUEST, "이미 차단된 회원입니다."),
     NOT_BLOCKED(HttpStatus.BAD_REQUEST, "차단되지 않은 회원입니다."),
     CANNOT_BLOCK_ADMIN(HttpStatus.BAD_REQUEST, "관리자는 차단할 수 없습니다."),
-    CANNOT_DELETE_ADMIN(HttpStatus.BAD_REQUEST, "관리자 계정은 탈퇴할 수 없습니다.");
+    CANNOT_DELETE_ADMIN(HttpStatus.BAD_REQUEST, "관리자 계정은 탈퇴할 수 없습니다."),
+
+    // 이미지
+    FILE_IS_EMPTY(HttpStatus.BAD_REQUEST, "파일이 비어있습니다."),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "이미지 파일만 업로드 가능합니다."),
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
+    FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기는 10MB를 초과할 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

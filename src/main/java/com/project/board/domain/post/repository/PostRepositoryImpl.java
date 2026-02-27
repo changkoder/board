@@ -61,6 +61,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                 .where(
                         post.deleted.eq(false),
                         post.hidden.eq(false),
+                        post.category.name.ne("공지"),
                         ltPostId(lastPostId)
                 ).orderBy(post.id.desc())
                 .limit(size)

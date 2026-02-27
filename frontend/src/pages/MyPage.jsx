@@ -184,6 +184,9 @@ export default function MyPage() {
           <ul className="comment-list">
             {data.map((comment) => (
               <li key={comment.id} className="comment-item">
+                <Link to={`/posts/${comment.postId}`} className="comment-post-link">
+                  {comment.postTitle}
+                </Link>
                 <p>{comment.content}</p>
                 <span className="comment-meta">
                   {new Date(comment.createdAt).toLocaleDateString()}

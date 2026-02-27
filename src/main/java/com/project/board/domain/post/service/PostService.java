@@ -32,7 +32,7 @@ public class PostService {
     private final ViewLogRepository viewLogRepository;
     private final BookmarkRepository bookmarkRepository;
 
-    public Page<PostListResponse> findAll(Long categoryId, Pageable pageable){
+    public PostListWithNoticeResponse findAll(Long categoryId, Pageable pageable){
         Page<Post> posts;
 
         if(categoryId != null){
@@ -41,15 +41,34 @@ public class PostService {
             posts = postRepository.findAllActive(pageable);
         }
 
-        return posts.map(post -> PostListResponse.from(post));
+        Page<PostListResponse> postResponses = posts.map(post -> PostListResponse.from(post));
+
+        // 1페이지이고 카테고리 필터 없을 때만 공지 포함
+        List<PostListResponse> notices = List.of();
+        if (pageable.getPageNumber() == 0 && categoryId == null) {
+            notices = postRepository.findNotices().stream()
+                    .map(PostListResponse::from)
+                    .toList();
+        }
+        return new PostListWithNoticeResponse(notices, postResponses);
+
     }
 
-    public List<PostListResponse> findAllNoOffset(Long lastPostId, int size){
+    public PostListWithNoticeNoOffsetResponse findAllNoOffset(Long lastPostId, int size){
         List<Post> posts = postRepository.findAllNoOffset(lastPostId, size);
-        return posts.stream()
+        List<PostListResponse> postResponses = posts.stream()
                 .map(post -> PostListResponse.from(post))
                 .toList();
 
+        // 첫 요청(lastPostId가 null)일 때만 공지 포함
+        List<PostListResponse> notices = List.of();
+        if (lastPostId == null) {
+            notices = postRepository.findNotices().stream()
+                    .map(PostListResponse::from)
+                    .toList();
+        }
+
+        return new PostListWithNoticeNoOffsetResponse(notices, postResponses);
 
     }
 
@@ -65,6 +84,12 @@ public class PostService {
 
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+
+
+        // ← 추가: 공지 카테고리는 관리자만 작성 가능
+        if (category.getName().equals("공지") && user.getRole() != User.Role.ADMIN) {
+            throw new CustomException(ErrorCode.NOTICE_ADMIN_ONLY);
+        }
 
         Post post = Post.builder()
                 .user(user)

@@ -17,6 +17,7 @@ export default function PostDetailPage() {
   const [bookmarked, setBookmarked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     postApi
@@ -124,6 +125,20 @@ export default function PostDetailPage() {
 
         <div className="post-content">{post.content}</div>
 
+        {post.imageUrls && post.imageUrls.length > 0 && (
+          <div className="post-images">
+            {post.imageUrls.map((url, index) => (
+              <img
+                key={index}
+                src={url}
+                alt={`첨부 이미지 ${index + 1}`}
+                className="post-image"
+                onClick={() => setPreviewImage(url)}
+              />
+            ))}
+          </div>
+        )}
+
         <div className="post-actions">
           {isAuthenticated && (
             <>
@@ -180,6 +195,12 @@ export default function PostDetailPage() {
           onSubmit={handleReport}
           onClose={() => setShowReportModal(false)}
         />
+      )}
+
+      {previewImage && (
+        <div className="modal-overlay" onClick={() => setPreviewImage(null)}>
+          <img src={previewImage} alt="이미지 확대" className="image-preview-full" />
+        </div>
       )}
     </div>
   );

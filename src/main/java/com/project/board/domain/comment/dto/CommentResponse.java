@@ -18,6 +18,8 @@ public class CommentResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<CommentResponse> children;
+    private Long postId;
+    private String postTitle;
 
     //대댓글용(자식 없음)
     public static CommentResponse from(Comment comment) {
@@ -29,6 +31,8 @@ public class CommentResponse {
                 .likeCount(comment.getLikeCount())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
+                .postId(comment.getPost().getId())
+                .postTitle(comment.getPost().getTitle())
                 .children(null)
                 .build();
     }
@@ -43,6 +47,8 @@ public class CommentResponse {
                 .likeCount(comment.getLikeCount())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
+                .postId(comment.getPost().getId())
+                .postTitle(comment.getPost().getTitle())
                 .children(children)
                 .build();
     }

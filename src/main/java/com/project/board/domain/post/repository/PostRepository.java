@@ -11,10 +11,10 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom{
 
-    @Query("SELECT p FROM Post p WHERE p.deleted = false AND p.hidden = false")
+    @Query("SELECT p FROM Post p WHERE p.deleted = false AND p.hidden = false AND p.category.name != '공지'")
     Page<Post> findAllActive(Pageable pageable);
 
-    @Query("SELECT p from Post p WHERE p.category.id = :categoryId AND p.deleted = false AND  p.hidden = false")
+    @Query("SELECT p FROM Post p WHERE p.category.id = :categoryId AND p.deleted = false AND p.hidden = false")
     Page<Post> findByCategoryActive(@Param("categoryId") Long categoryId, Pageable pageable);
 
     @Query("SELECT p FROM Post p JOIN FETCH p.user JOIN FETCH p.category WHERE p.hidden = true AND p.deleted = false")
@@ -23,4 +23,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     // 마이페이지 - 내가 쓴 글
     @Query("SELECT p FROM Post p JOIN FETCH p.category WHERE p.user.id = :userId AND p.deleted = false ORDER BY p.createdAt DESC")
     List<Post> findByUserId(@Param("userId") Long userId);
+
+    // 공지글 목록 (삭제/숨김 제외)
+    @Query("SELECT p FROM Post p JOIN FETCH p.user JOIN FETCH p.category WHERE p.category.name = '공지' AND p.deleted = false AND p.hidden = false ORDER BY p.createdAt DESC")
+    List<Post> findNotices();
 }

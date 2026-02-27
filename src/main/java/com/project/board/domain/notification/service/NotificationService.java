@@ -28,6 +28,13 @@ public class NotificationService {
             return;
         }
 
+        //알림 중복 방지
+        if (type == Notification.NotificationType.POST_LIKE || type == Notification.NotificationType.COMMENT_LIKE) {
+            if (notificationRepository.existsLikeNotification(receiver.getId(), actorId, postId, type)) {
+                return;
+            }
+        }
+
         Notification notification = Notification.builder()
                 .user(receiver)
                 .type(type)

@@ -1,9 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
 
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const { unreadCount } = useNotification();
 
   const handleLogout = async () => {
     await logout();
@@ -23,8 +25,11 @@ export default function Header() {
               <Link to="/posts/new" className="nav-link">
                 글쓰기
               </Link>
-              <Link to="/notifications" className="nav-link">
+              <Link to="/notifications" className="nav-link nav-notification">
                 알림
+                {unreadCount > 0 && (
+                  <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+                )}
               </Link>
               <Link to="/mypage" className="nav-link">
                 마이페이지

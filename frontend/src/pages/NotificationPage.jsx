@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { notificationApi } from '../api/notifications';
+import { useToast } from '../contexts/ToastContext';
+import { useNotification } from '../contexts/NotificationContext';
 
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const { refreshCount } = useNotification();
 
   const fetchNotifications = () => {
     setLoading(true);
@@ -18,12 +24,17 @@ export default function NotificationPage() {
     fetchNotifications();
   }, []);
 
-  const handleMarkAsRead = async (id) => {
+  const handleClick = async (noti) => {
     try {
-      await notificationApi.markAsRead(id);
-      fetchNotifications();
+      if (!noti.read) {
+        await notificationApi.markAsRead(noti.id);
+        refreshCount();
+      }
+      if (noti.postId) {
+        navigate(`/posts/${noti.postId}`);
+      }
     } catch (err) {
-      alert(err.response?.data?.message || '읽음 처리에 실패했습니다.');
+      showToast(err.response?.data?.message || '알림 처리에 실패했습니다.', 'error');
     }
   };
 
@@ -31,8 +42,9 @@ export default function NotificationPage() {
     try {
       await notificationApi.markAllAsRead();
       fetchNotifications();
+      refreshCount();
     } catch (err) {
-      alert(err.response?.data?.message || '전체 읽음 처리에 실패했습니다.');
+      showToast(err.response?.data?.message || '전체 읽음 처리에 실패했습니다.', 'error');
     }
   };
 
@@ -59,7 +71,7 @@ export default function NotificationPage() {
             <li
               key={noti.id}
               className={`notification-item ${noti.read ? '' : 'notification-unread'}`}
-              onClick={() => !noti.read && handleMarkAsRead(noti.id)}
+              onClick={() => handleClick(noti)}
             >
               <p className="notification-message">{noti.message}</p>
               <span className="notification-date">
