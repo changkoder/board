@@ -1,21 +1,38 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { showToast } = useToast();
+
+  // 이미 로그인 상태면 홈으로
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // 세션 만료로 리다이렉트된 경우 안내
+  useEffect(() => {
+    if (sessionStorage.getItem('sessionExpired')) {
+      sessionStorage.removeItem('sessionExpired');
+      showToast('세션이 만료되었습니다. 다시 로그인해주세요.', 'error');
+    }
+  }, [showToast]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       await login(email, password);
-      navigate('/');
+      const redirectTo = location.state?.from || '/';
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       showToast(err.response?.data?.message || '로그인에 실패했습니다.', 'error');
     }

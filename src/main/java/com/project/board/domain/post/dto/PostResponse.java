@@ -17,6 +17,7 @@ public class PostResponse {
     private String categoryName;
     private Long authorId;
     private String authorNickname;
+    private String authorProfileImg;
     private int viewCount;
     private int likeCount;
     private int commentCount;
@@ -24,6 +25,7 @@ public class PostResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean bookmarked;
+    private boolean liked;
 
     public static PostResponse from(Post post){
         return PostResponse.builder()
@@ -33,6 +35,7 @@ public class PostResponse {
                 .categoryName(post.getCategory().getName())
                 .authorId(post.getUser().getId())
                 .authorNickname(post.getUser().getNickname())
+                .authorProfileImg(post.getUser().getProfileImg())
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
@@ -42,10 +45,11 @@ public class PostResponse {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .bookmarked(false)
+                .liked(false)
                 .build();
     }
 
-    public static PostResponse from(Post post, boolean bookmarked){
+    public static PostResponse from(Post post, boolean bookmarked, boolean liked){
         return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -53,6 +57,7 @@ public class PostResponse {
                 .categoryName(post.getCategory().getName())
                 .authorId(post.getUser().getId())
                 .authorNickname(post.getUser().getNickname())
+                .authorProfileImg(post.getUser().getProfileImg())
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
@@ -62,6 +67,7 @@ public class PostResponse {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .bookmarked(bookmarked)
+                .liked(liked)
                 .build();
     }
 }

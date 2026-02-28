@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { authApi } from '../api/auth';
+import { imageApi } from '../api/images';
 
 const TABS = [
   { key: 'posts', label: '내가 쓴 글' },
@@ -12,12 +13,14 @@ const TABS = [
 ];
 
 export default function MyPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState('posts');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   // 프로필 수정
   const [editing, setEditing] = useState(false);
@@ -28,7 +31,7 @@ export default function MyPage() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
-  useEffect(() => {
+  const fetchTabData = () => {
     setLoading(true);
 
     const fetcher = {
@@ -39,18 +42,51 @@ export default function MyPage() {
     };
 
     fetcher[activeTab]()
-      .then((res) => setData(res.data.data))
-      .catch(() => setData([]))
+      .then((res) => {
+        setData(res.data.data);
+        setError(false);
+      })
+      .catch(() => {
+        setData([]);
+        setError(true);
+      })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchTabData();
   }, [activeTab]);
 
   const handleUpdateNickname = async () => {
     try {
       await authApi.updateMe(nickname, null);
+      await refreshUser();
       showToast('닉네임이 변경되었습니다.', 'success');
       setEditing(false);
     } catch (err) {
       showToast(err.response?.data?.message || '닉네임 변경에 실패했습니다.', 'error');
+    }
+  };
+
+  const handleProfileImgChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('이미지 파일만 업로드할 수 있습니다.', 'error');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('이미지 크기는 5MB 이하만 가능합니다.', 'error');
+      return;
+    }
+    try {
+      const uploadRes = await imageApi.upload([file]);
+      const imageUrl = uploadRes.data.data[0].imageUrl;
+      await authApi.updateMe(null, imageUrl);
+      await refreshUser();
+      showToast('프로필 이미지가 변경되었습니다.', 'success');
+    } catch (err) {
+      showToast(err.response?.data?.message || '이미지 변경에 실패했습니다.', 'error');
     }
   };
 
@@ -84,6 +120,29 @@ export default function MyPage() {
 
       {/* 프로필 */}
       <div className="profile-card">
+        <div className="profile-avatar-section">
+          <div
+            className="mypage-avatar"
+            onClick={() => fileInputRef.current?.click()}
+            title="클릭하여 프로필 이미지 변경"
+          >
+            {user.profileImg ? (
+              <img src={user.profileImg} alt="프로필" />
+            ) : (
+              <span className="mypage-avatar-placeholder">
+                {user.nickname?.charAt(0)}
+              </span>
+            )}
+            <div className="mypage-avatar-overlay">변경</div>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleProfileImgChange}
+            style={{ display: 'none' }}
+          />
+        </div>
         <div className="profile-info">
           <p>
             <strong>이메일:</strong> {user.email}
@@ -178,6 +237,12 @@ export default function MyPage() {
       <div className="tab-content">
         {loading ? (
           <div className="loading">로딩 중...</div>
+        ) : error ? (
+          <div className="error-state">
+            <p>데이터를 불러올 수 없습니다.</p>
+            <p>잠시 후 다시 시도해주세요.</p>
+            <button onClick={fetchTabData} className="btn btn-primary" style={{ marginTop: '16px' }}>다시 시도</button>
+          </div>
         ) : data.length === 0 ? (
           <p className="empty">항목이 없습니다.</p>
         ) : activeTab === 'comments' ? (

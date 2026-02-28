@@ -7,6 +7,7 @@ import { useNotification } from '../contexts/NotificationContext';
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { refreshCount } = useNotification();
@@ -15,8 +16,14 @@ export default function NotificationPage() {
     setLoading(true);
     notificationApi
       .getAll()
-      .then((res) => setNotifications(res.data.data))
-      .catch(() => setNotifications([]))
+      .then((res) => {
+        setNotifications(res.data.data);
+        setError(false);
+      })
+      .catch(() => {
+        setNotifications([]);
+        setError(true);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -63,7 +70,13 @@ export default function NotificationPage() {
         )}
       </div>
 
-      {notifications.length === 0 ? (
+      {error ? (
+        <div className="error-state">
+          <p>서버에 문제가 발생했습니다.</p>
+          <p>잠시 후 다시 시도해주세요.</p>
+          <button onClick={fetchNotifications} className="btn btn-primary" style={{ marginTop: '16px' }}>다시 시도</button>
+        </div>
+      ) : notifications.length === 0 ? (
         <p className="empty">알림이 없습니다.</p>
       ) : (
         <ul className="notification-list">

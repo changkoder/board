@@ -1,40 +1,64 @@
 package com.project.board.global.config;
 
+import com.project.board.domain.bookmark.entity.Bookmark;
+import com.project.board.domain.bookmark.repository.BookmarkRepository;
 import com.project.board.domain.category.entity.Category;
 import com.project.board.domain.category.repository.CategoryRepository;
 import com.project.board.domain.comment.entity.Comment;
 import com.project.board.domain.comment.repository.CommentRepository;
+import com.project.board.domain.like.entity.CommentLike;
+import com.project.board.domain.like.entity.PostLike;
+import com.project.board.domain.like.repository.CommentLikeRepository;
+import com.project.board.domain.like.repository.PostLikeRepository;
+import com.project.board.domain.notification.entity.Notification;
+import com.project.board.domain.notification.repository.NotificationRepository;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
+import com.project.board.domain.report.entity.Report;
+import com.project.board.domain.report.repository.ReportRepository;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
-import jakarta.annotation.PostConstruct;
+import com.project.board.domain.viewlog.entity.ViewLog;
+import com.project.board.domain.viewlog.repository.ViewLogRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Profile("local")
 @Component
 @RequiredArgsConstructor
-public class DataInitializer {
+public class DataInitializer implements CommandLineRunner {
 
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final CommentLikeRepository commentLikeRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final NotificationRepository notificationRepository;
+    private final ReportRepository reportRepository;
+    private final ViewLogRepository viewLogRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @PostConstruct
-    public void init(){
+    @Override
+    @Transactional
+    public void run(String... args) {
 
-        // === 카테고리 ===
+        // ============================================================
+        // 카테고리
+        // ============================================================
         Category notice = categoryRepository.save(new Category("공지"));
         Category free = categoryRepository.save(new Category("자유"));
         Category question = categoryRepository.save(new Category("질문"));
         Category info = categoryRepository.save(new Category("정보공유"));
 
-        // === 유저 ===
+        // ============================================================
+        // 유저 (6명)
+        // ============================================================
         User admin = userRepository.save(User.builder()
                 .email("admin@test.com")
                 .password(passwordEncoder.encode("admin1234"))
@@ -72,7 +96,9 @@ public class DataInitializer {
                 .nickname("취준생김철수")
                 .build());
 
-        // === 공지글 ===
+        // ============================================================
+        // 공지글
+        // ============================================================
         Post noticePost1 = postRepository.save(Post.builder()
                 .user(admin).category(notice)
                 .title("[필독] 게시판 이용규칙 안내")
@@ -85,7 +111,9 @@ public class DataInitializer {
                 .content("서버 점검이 예정되어 있습니다.\n\n일시: 2025년 2월 25일 새벽 2시 ~ 6시\n내용: DB 마이그레이션 및 성능 개선\n\n해당 시간 동안 서비스 이용이 불가합니다.\n양해 부탁드립니다.")
                 .build());
 
-        // === 자유 게시판 ===
+        // ============================================================
+        // 자유 게시판
+        // ============================================================
         Post p1 = postRepository.save(Post.builder()
                 .user(user1).category(free)
                 .title("개발 시작한 지 한 달 됐습니다")
@@ -128,7 +156,9 @@ public class DataInitializer {
                 .content("SI 프로젝트 마감이 다음 주인데 버그가 계속 나와요\n고객사에서 요구사항도 계속 바꾸고...\n이게 개발자 현실인가요?")
                 .build());
 
-        // === 질문 게시판 ===
+        // ============================================================
+        // 질문 게시판
+        // ============================================================
         Post p8 = postRepository.save(Post.builder()
                 .user(user1).category(question)
                 .title("Spring Boot에서 JPA N+1 문제 어떻게 해결하나요?")
@@ -159,7 +189,9 @@ public class DataInitializer {
                 .content("레이아웃 잡을 때 flexbox랑 grid 중에 뭘 써야 할지 모르겠어요\n둘 다 배웠는데 실전에서 어떤 기준으로 선택하시나요?")
                 .build());
 
-        // === 정보공유 게시판 ===
+        // ============================================================
+        // 정보공유 게시판
+        // ============================================================
         Post p13 = postRepository.save(Post.builder()
                 .user(user2).category(info)
                 .title("[정리] 주니어 개발자 면접 단골 질문 TOP 10")
@@ -208,7 +240,9 @@ public class DataInitializer {
                 .content("게시판은 너무 흔하다고 해서 다른 주제를 찾고 있어요\n쇼핑몰? 채팅앱? 뭐가 좋을까요?\n면접관이 관심 가질 만한 주제 추천 부탁드립니다!")
                 .build());
 
-        // === 댓글 (유저들끼리 토론/싸움) ===
+        // ============================================================
+        // 댓글 (멘션 포함, 활발한 토론)
+        // ============================================================
 
         // p3: 자바 vs 파이썬 논쟁
         Comment c1 = commentRepository.save(Comment.builder()
@@ -221,11 +255,11 @@ public class DataInitializer {
                 .build());
         commentRepository.save(Comment.builder()
                 .post(p3).user(user4).parent(c2)
-                .content("대규모 프로젝트? 인스타그램 파이썬으로 만들었는데요? ㅋㅋ")
+                .content("@자바킹 대규모 프로젝트? 인스타그램 파이썬으로 만들었는데요? ㅋㅋ")
                 .build());
         commentRepository.save(Comment.builder()
                 .post(p3).user(user2).parent(c2)
-                .content("둘 다 배우면 됩니다 싸우지 마세요 ㅋㅋㅋ")
+                .content("@리액트러버 @자바킹 둘 다 배우면 됩니다 싸우지 마세요 ㅋㅋㅋ")
                 .build());
         commentRepository.save(Comment.builder()
                 .post(p3).user(user5)
@@ -235,6 +269,8 @@ public class DataInitializer {
                 .post(p3).user(user1).parent(c1)
                 .content("파이썬 쉽다고 하는데 저는 들여쓰기 때문에 더 헷갈리던데...")
                 .build());
+        p3.increaseCommentCount(); p3.increaseCommentCount(); p3.increaseCommentCount();
+        p3.increaseCommentCount(); p3.increaseCommentCount(); p3.increaseCommentCount();
 
         // p2: 코딩테스트 망한 글
         Comment c3 = commentRepository.save(Comment.builder()
@@ -247,8 +283,9 @@ public class DataInitializer {
                 .build());
         commentRepository.save(Comment.builder()
                 .post(p2).user(user1).parent(c3)
-                .content("저도 1번 겨우 풀었어요... 코테는 진짜 따로 시간 잡고 준비해야 하는 것 같아요")
+                .content("@자바킹 저도 1번 겨우 풀었어요... 코테는 진짜 따로 시간 잡고 준비해야 하는 것 같아요")
                 .build());
+        p2.increaseCommentCount(); p2.increaseCommentCount(); p2.increaseCommentCount();
 
         // p5: 취업 준비 현타
         Comment c4 = commentRepository.save(Comment.builder()
@@ -261,36 +298,79 @@ public class DataInitializer {
                 .build());
         commentRepository.save(Comment.builder()
                 .post(p5).user(user4).parent(c4)
-                .content("맞아요 저도 7개월 만에 됐어요. 꾸준히 하면 결과 나옵니다")
+                .content("@코딩마스터 맞아요 저도 7개월 만에 됐어요. 꾸준히 하면 결과 나옵니다")
                 .build());
         commentRepository.save(Comment.builder()
                 .post(p5).user(user1)
                 .content("같이 힘내봐요 ㅠㅠ 저도 취준 중입니다")
                 .build());
+        p5.increaseCommentCount(); p5.increaseCommentCount();
+        p5.increaseCommentCount(); p5.increaseCommentCount();
 
         // p8: JPA N+1 질문
         Comment c5 = commentRepository.save(Comment.builder()
                 .post(p8).user(user3)
                 .content("fetch join 쓰세요. @Query에서 JOIN FETCH 하면 됩니다")
                 .build());
-        commentRepository.save(Comment.builder()
+        Comment c5r1 = commentRepository.save(Comment.builder()
                 .post(p8).user(user2).parent(c5)
                 .content("fetch join은 페이징이랑 같이 못 쓰는 거 아시죠? @BatchSize 도 같이 알아보세요")
                 .build());
         commentRepository.save(Comment.builder()
                 .post(p8).user(user1).parent(c5)
-                .content("감사합니다! fetch join으로 해결됐어요!")
+                .content("@자바킹 감사합니다! fetch join으로 해결됐어요!")
                 .build());
+        p8.increaseCommentCount(); p8.increaseCommentCount(); p8.increaseCommentCount();
 
         // p9: React useEffect 무한루프
-        commentRepository.save(Comment.builder()
+        Comment c9_1 = commentRepository.save(Comment.builder()
                 .post(p9).user(user2)
                 .content("의존성 배열에 객체 넣으면 매번 새 참조라서 무한루프 됩니다. useMemo로 감싸보세요")
                 .build());
-        commentRepository.save(Comment.builder()
+        Comment c9_2 = commentRepository.save(Comment.builder()
                 .post(p9).user(user1)
                 .content("저도 이거 때문에 3시간 날렸어요 ㅋㅋ useCallback 이랑 useMemo 공부하세요")
                 .build());
+        commentRepository.save(Comment.builder()
+                .post(p9).user(user4).parent(c9_1)
+                .content("@코딩마스터 오 감사합니다! useMemo로 감싸니까 해결됐어요!!")
+                .build());
+        p9.increaseCommentCount(); p9.increaseCommentCount(); p9.increaseCommentCount();
+
+        // p6: 첫 프로젝트 완성
+        Comment c6_1 = commentRepository.save(Comment.builder()
+                .post(p6).user(user2)
+                .content("축하합니다! 첫 프로젝트 완성이 가장 의미 있어요. 다음엔 API 연동도 해보세요!")
+                .build());
+        commentRepository.save(Comment.builder()
+                .post(p6).user(user3)
+                .content("투두리스트가 별거 아닌 것 같지만 CRUD 다 들어있어서 좋은 연습이에요")
+                .build());
+        commentRepository.save(Comment.builder()
+                .post(p6).user(user5)
+                .content("@개발초보 저도 처음에 투두리스트로 시작했어요! 화이팅!")
+                .build());
+        p6.increaseCommentCount(); p6.increaseCommentCount(); p6.increaseCommentCount();
+
+        // p13: 면접 질문
+        Comment c13_1 = commentRepository.save(Comment.builder()
+                .post(p13).user(user1)
+                .content("우와 정리 감사합니다! 저장해둘게요")
+                .build());
+        commentRepository.save(Comment.builder()
+                .post(p13).user(user5)
+                .content("여기에 CORS랑 쿠키/세션 차이도 추가하면 좋을 것 같아요!")
+                .build());
+        commentRepository.save(Comment.builder()
+                .post(p13).user(user3)
+                .content("@코딩마스터 상세 설명 빨리 올려주세요! 면접 준비 중입니다")
+                .build());
+        commentRepository.save(Comment.builder()
+                .post(p13).user(user4).parent(c13_1)
+                .content("@개발초보 저도 저장했어요 ㅋㅋ 같이 면접 준비 해요!")
+                .build());
+        p13.increaseCommentCount(); p13.increaseCommentCount();
+        p13.increaseCommentCount(); p13.increaseCommentCount();
 
         // p18: 맥북 vs 윈도우
         Comment c6 = commentRepository.save(Comment.builder()
@@ -303,19 +383,21 @@ public class DataInitializer {
                 .build());
         commentRepository.save(Comment.builder()
                 .post(p18).user(user4).parent(c7)
-                .content("써보면 압니다. 개발 환경 세팅부터가 차원이 다름")
+                .content("@취준생김철수 써보면 압니다. 개발 환경 세팅부터가 차원이 다름")
                 .build());
         commentRepository.save(Comment.builder()
                 .post(p18).user(user3).parent(c6)
-                .content("맥 300만원 주고 사서 유튜브만 보는 사람도 있던데 ㅋㅋ")
+                .content("@리액트러버 맥 300만원 주고 사서 유튜브만 보는 사람도 있던데 ㅋㅋ")
                 .build());
         commentRepository.save(Comment.builder()
                 .post(p18).user(user2)
                 .content("글쓴이 말이 맞음. 그냥 본인한테 맞는 거 쓰면 됨. 싸울 주제가 아님")
                 .build());
+        p18.increaseCommentCount(); p18.increaseCommentCount(); p18.increaseCommentCount();
+        p18.increaseCommentCount(); p18.increaseCommentCount();
 
         // p20: 포트폴리오 주제
-        commentRepository.save(Comment.builder()
+        Comment c20_1 = commentRepository.save(Comment.builder()
                 .post(p20).user(user2)
                 .content("실시간 채팅앱 추천합니다. WebSocket 써봤다고 하면 면접에서 관심 가져요")
                 .build());
@@ -327,16 +409,12 @@ public class DataInitializer {
                 .post(p20).user(user4)
                 .content("중고거래 플랫폼은 어떠세요? 결제 연동까지 하면 포트폴리오로 괜찮을 듯")
                 .build());
-
-        // p13: 면접 질문
         commentRepository.save(Comment.builder()
-                .post(p13).user(user1)
-                .content("우와 정리 감사합니다! 저장해둘게요")
+                .post(p20).user(user1).parent(c20_1)
+                .content("@코딩마스터 WebSocket이면 STOMP도 같이 배워야 하나요?")
                 .build());
-        commentRepository.save(Comment.builder()
-                .post(p13).user(user5)
-                .content("여기에 CORS랑 쿠키/세션 차이도 추가하면 좋을 것 같아요!")
-                .build());
+        p20.increaseCommentCount(); p20.increaseCommentCount();
+        p20.increaseCommentCount(); p20.increaseCommentCount();
 
         // p19: 음악 추천
         commentRepository.save(Comment.builder()
@@ -351,5 +429,356 @@ public class DataInitializer {
                 .post(p19).user(user5)
                 .content("코딩할 때 가사 있는 노래 들으면 집중 안 돼요. 로파이가 최고")
                 .build());
+        p19.increaseCommentCount(); p19.increaseCommentCount(); p19.increaseCommentCount();
+
+        // p1: 개발 시작
+        commentRepository.save(Comment.builder()
+                .post(p1).user(user2)
+                .content("한 달이면 아직 시작이에요! 3개월만 꾸준히 하면 확 달라집니다. 화이팅!")
+                .build());
+        commentRepository.save(Comment.builder()
+                .post(p1).user(user4)
+                .content("저도 처음엔 그랬어요 ㅋㅋ 지금은 리액트로 프로젝트 하고 있습니다. 포기만 안 하면 됩니다!")
+                .build());
+        p1.increaseCommentCount(); p1.increaseCommentCount();
+
+        // p16: 이력서 조언
+        Comment c16_1 = commentRepository.save(Comment.builder()
+                .post(p16).user(user1)
+                .content("README 진짜 중요하더라고요. 저도 최근에야 깨달았어요")
+                .build());
+        commentRepository.save(Comment.builder()
+                .post(p16).user(user3)
+                .content("@취준생김철수 좋은 정보 감사합니다! 이력서 다시 써야겠어요")
+                .build());
+        p16.increaseCommentCount(); p16.increaseCommentCount();
+
+        postRepository.flush();
+
+        // ============================================================
+        // 조회수 (ViewLog + viewCount 직접 반영)
+        // ============================================================
+        // 인기 글들에 조회수 부여
+        addView(user1, p13); addView(user2, p13); addView(user3, p13); addView(user4, p13); addView(user5, p13); // 면접질문 5
+        addView(user1, p3); addView(user2, p3); addView(user4, p3); addView(user5, p3); // 자바vs파이썬 4
+        addView(user1, p5); addView(user2, p5); addView(user3, p5); addView(user4, p5); // 취업현타 4
+        addView(user1, p14); addView(user2, p14); addView(user4, p14); addView(user5, p14); // 무료강의 4
+        addView(user1, p16); addView(user2, p16); addView(user3, p16); addView(user4, p16); // 이력서 4
+        addView(user1, p18); addView(user2, p18); addView(user4, p18); // 맥vs윈도우 3
+        addView(user1, p8); addView(user3, p8); addView(user4, p8); // JPA N+1 3
+        addView(user2, p6); addView(user3, p6); addView(user5, p6); // 첫프로젝트 3
+        addView(user1, p2); addView(user3, p2); addView(user5, p2); // 코테 3
+        addView(user1, p20); addView(user2, p20); addView(user3, p20); // 포트폴리오 3
+        addView(user1, p9); addView(user2, p9); // useEffect 2
+        addView(user2, p17); addView(user5, p17); // Docker 2
+        addView(user1, p15); addView(user3, p15); // React구조 2
+        addView(user2, p4); addView(user5, p4); // 리액트재밌다 2
+        addView(user3, p7); addView(user4, p7); // 야근 2
+        addView(user1, p19); // 음악 1
+        addView(user3, p11); addView(user4, p11); // JWT질문 2
+        addView(user2, p12); addView(user4, p12); // CSS질문 2
+        addView(user1, p10); addView(user3, p10); // Git질문 2
+
+        // ============================================================
+        // 게시글 좋아요 (PostLike + likeCount 반영)
+        // ============================================================
+        // 면접질문 - 정보글이라 좋아요 많음
+        addPostLike(user1, p13); addPostLike(user3, p13); addPostLike(user4, p13); addPostLike(user5, p13);
+        // 무료 강의 - 유용한 정보
+        addPostLike(user1, p14); addPostLike(user2, p14); addPostLike(user5, p14);
+        // 이력서 조언
+        addPostLike(user1, p16); addPostLike(user2, p16); addPostLike(user3, p16);
+        // 취업 현타 - 공감 많음
+        addPostLike(user1, p5); addPostLike(user2, p5); addPostLike(user3, p5);
+        // 첫 프로젝트 완성 - 응원
+        addPostLike(user2, p6); addPostLike(user4, p6); addPostLike(user5, p6);
+        // Docker 정리
+        addPostLike(user1, p17); addPostLike(user4, p17);
+        // React 폴더구조
+        addPostLike(user1, p15); addPostLike(user3, p15);
+        // 자바vs파이썬 - 토론글 호불호
+        addPostLike(user4, p3); addPostLike(user5, p3);
+        // 리액트 재밌다
+        addPostLike(user1, p4); addPostLike(user2, p4);
+        // 맥북 vs 윈도우
+        addPostLike(user2, p18); addPostLike(user4, p18);
+        // 야근 글 - 동감
+        addPostLike(user3, p7); addPostLike(user5, p7);
+        // JPA N+1
+        addPostLike(user3, p8);
+        // 코딩테스트
+        addPostLike(user1, p2);
+        // 음악
+        addPostLike(user3, p19);
+
+        // ============================================================
+        // 댓글 좋아요 (CommentLike + likeCount 반영)
+        // ============================================================
+        // 도움 되는 답변들에 좋아요
+        addCommentLike(user1, c5);  // fetch join 답변
+        addCommentLike(user4, c5);
+        addCommentLike(user1, c9_1); // useMemo 답변
+        addCommentLike(user4, c9_1);
+        addCommentLike(user1, c4);  // 취업 응원
+        addCommentLike(user5, c4);
+        addCommentLike(user2, c1);  // 파이썬 옹호
+        addCommentLike(user1, c13_1); // 면접 정리 감사
+        addCommentLike(user3, c6_1);  // 첫프로젝트 축하
+        addCommentLike(user5, c6_1);
+        addCommentLike(user3, c20_1); // 채팅앱 추천
+        addCommentLike(user5, c20_1);
+        addCommentLike(user2, c5r1);  // BatchSize 팁
+        addCommentLike(user1, c16_1); // README 중요
+
+        // ============================================================
+        // 북마크 (자주 참고할 만한 글 저장)
+        // ============================================================
+        // user1(개발초보) - 공부자료 북마크
+        bookmarkRepository.save(new Bookmark(user1, p13)); // 면접질문
+        bookmarkRepository.save(new Bookmark(user1, p14)); // 무료강의
+        bookmarkRepository.save(new Bookmark(user1, p16)); // 이력서
+        bookmarkRepository.save(new Bookmark(user1, p15)); // React구조
+        bookmarkRepository.save(new Bookmark(user1, p17)); // Docker
+
+        // user2(코딩마스터) - 정보글 위주
+        bookmarkRepository.save(new Bookmark(user2, p14)); // 무료강의
+        bookmarkRepository.save(new Bookmark(user2, p16)); // 이력서
+
+        // user3(자바킹) - 기술 관련
+        bookmarkRepository.save(new Bookmark(user3, p13)); // 면접질문
+        bookmarkRepository.save(new Bookmark(user3, p8));  // JPA N+1
+        bookmarkRepository.save(new Bookmark(user3, p17)); // Docker
+
+        // user4(리액트러버) - 프론트 관련
+        bookmarkRepository.save(new Bookmark(user4, p15)); // React구조
+        bookmarkRepository.save(new Bookmark(user4, p13)); // 면접질문
+
+        // user5(취준생김철수) - 취업 관련
+        bookmarkRepository.save(new Bookmark(user5, p13)); // 면접질문
+        bookmarkRepository.save(new Bookmark(user5, p16)); // 이력서
+        bookmarkRepository.save(new Bookmark(user5, p14)); // 무료강의
+        bookmarkRepository.save(new Bookmark(user5, p5));  // 취업현타 공감
+
+        // ============================================================
+        // 알림 (다양한 타입)
+        // ============================================================
+
+        // COMMENT 알림 - 내 글에 댓글 달림
+        notificationRepository.save(Notification.builder()
+                .user(user3).type(Notification.NotificationType.COMMENT)
+                .postId(p3.getId()).actorId(user4.getId())
+                .message("리액트러버님이 회원님의 글에 댓글을 달았습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user2).type(Notification.NotificationType.COMMENT)
+                .postId(p2.getId()).actorId(user3.getId())
+                .message("자바킹님이 회원님의 글에 댓글을 달았습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user5).type(Notification.NotificationType.COMMENT)
+                .postId(p5.getId()).actorId(user2.getId())
+                .message("코딩마스터님이 회원님의 글에 댓글을 달았습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user1).type(Notification.NotificationType.COMMENT)
+                .postId(p8.getId()).actorId(user3.getId())
+                .message("자바킹님이 회원님의 글에 댓글을 달았습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user1).type(Notification.NotificationType.COMMENT)
+                .postId(p6.getId()).actorId(user2.getId())
+                .message("코딩마스터님이 회원님의 글에 댓글을 달았습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user2).type(Notification.NotificationType.COMMENT)
+                .postId(p13.getId()).actorId(user1.getId())
+                .message("개발초보님이 회원님의 글에 댓글을 달았습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user4).type(Notification.NotificationType.COMMENT)
+                .postId(p9.getId()).actorId(user2.getId())
+                .message("코딩마스터님이 회원님의 글에 댓글을 달았습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user5).type(Notification.NotificationType.COMMENT)
+                .postId(p16.getId()).actorId(user1.getId())
+                .message("개발초보님이 회원님의 글에 댓글을 달았습니다.")
+                .build());
+
+        // REPLY 알림 - 내 댓글에 대댓글 달림
+        notificationRepository.save(Notification.builder()
+                .user(user3).type(Notification.NotificationType.REPLY)
+                .postId(p3.getId()).actorId(user4.getId())
+                .message("리액트러버님이 회원님의 댓글에 답글을 달았습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user4).type(Notification.NotificationType.REPLY)
+                .postId(p3.getId()).actorId(user1.getId())
+                .message("개발초보님이 회원님의 댓글에 답글을 달았습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user3).type(Notification.NotificationType.REPLY)
+                .postId(p8.getId()).actorId(user2.getId())
+                .message("코딩마스터님이 회원님의 댓글에 답글을 달았습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user2).type(Notification.NotificationType.REPLY)
+                .postId(p9.getId()).actorId(user4.getId())
+                .message("리액트러버님이 회원님의 댓글에 답글을 달았습니다.")
+                .build());
+
+        // POST_LIKE 알림 - 내 글에 좋아요
+        notificationRepository.save(Notification.builder()
+                .user(user2).type(Notification.NotificationType.POST_LIKE)
+                .postId(p13.getId()).actorId(user1.getId())
+                .message("개발초보님이 회원님의 글을 좋아합니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user5).type(Notification.NotificationType.POST_LIKE)
+                .postId(p5.getId()).actorId(user1.getId())
+                .message("개발초보님이 회원님의 글을 좋아합니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user1).type(Notification.NotificationType.POST_LIKE)
+                .postId(p6.getId()).actorId(user2.getId())
+                .message("코딩마스터님이 회원님의 글을 좋아합니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user3).type(Notification.NotificationType.POST_LIKE)
+                .postId(p14.getId()).actorId(user1.getId())
+                .message("개발초보님이 회원님의 글을 좋아합니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user4).type(Notification.NotificationType.POST_LIKE)
+                .postId(p4.getId()).actorId(user1.getId())
+                .message("개발초보님이 회원님의 글을 좋아합니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user5).type(Notification.NotificationType.POST_LIKE)
+                .postId(p16.getId()).actorId(user2.getId())
+                .message("코딩마스터님이 회원님의 글을 좋아합니다.")
+                .build());
+
+        // COMMENT_LIKE 알림 - 내 댓글에 좋아요
+        notificationRepository.save(Notification.builder()
+                .user(user3).type(Notification.NotificationType.COMMENT_LIKE)
+                .postId(p8.getId()).actorId(user1.getId())
+                .message("개발초보님이 회원님의 댓글을 좋아합니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user2).type(Notification.NotificationType.COMMENT_LIKE)
+                .postId(p9.getId()).actorId(user4.getId())
+                .message("리액트러버님이 회원님의 댓글을 좋아합니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user2).type(Notification.NotificationType.COMMENT_LIKE)
+                .postId(p5.getId()).actorId(user1.getId())
+                .message("개발초보님이 회원님의 댓글을 좋아합니다.")
+                .build());
+
+        // MENTION 알림 - 댓글에서 멘션
+        notificationRepository.save(Notification.builder()
+                .user(user3).type(Notification.NotificationType.MENTION)
+                .postId(p3.getId()).actorId(user4.getId())
+                .message("리액트러버님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user4).type(Notification.NotificationType.MENTION)
+                .postId(p3.getId()).actorId(user2.getId())
+                .message("코딩마스터님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user3).type(Notification.NotificationType.MENTION)
+                .postId(p3.getId()).actorId(user2.getId())
+                .message("코딩마스터님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user2).type(Notification.NotificationType.MENTION)
+                .postId(p5.getId()).actorId(user4.getId())
+                .message("리액트러버님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user3).type(Notification.NotificationType.MENTION)
+                .postId(p8.getId()).actorId(user1.getId())
+                .message("개발초보님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user3).type(Notification.NotificationType.MENTION)
+                .postId(p2.getId()).actorId(user1.getId())
+                .message("개발초보님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user2).type(Notification.NotificationType.MENTION)
+                .postId(p9.getId()).actorId(user4.getId())
+                .message("리액트러버님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user1).type(Notification.NotificationType.MENTION)
+                .postId(p6.getId()).actorId(user5.getId())
+                .message("취준생김철수님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user5).type(Notification.NotificationType.MENTION)
+                .postId(p16.getId()).actorId(user3.getId())
+                .message("자바킹님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user2).type(Notification.NotificationType.MENTION)
+                .postId(p20.getId()).actorId(user1.getId())
+                .message("개발초보님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user5).type(Notification.NotificationType.MENTION)
+                .postId(p18.getId()).actorId(user4.getId())
+                .message("리액트러버님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user4).type(Notification.NotificationType.MENTION)
+                .postId(p18.getId()).actorId(user3.getId())
+                .message("자바킹님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user1).type(Notification.NotificationType.MENTION)
+                .postId(p13.getId()).actorId(user4.getId())
+                .message("리액트러버님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+        notificationRepository.save(Notification.builder()
+                .user(user2).type(Notification.NotificationType.MENTION)
+                .postId(p13.getId()).actorId(user3.getId())
+                .message("자바킹님이 댓글에서 회원님을 언급했습니다.")
+                .build());
+
+        // 일부 알림은 이미 읽은 상태로 (자연스러움)
+        // → 서비스 로직 없이 직접 read() 호출 불가하므로 기본 unread 유지
+
+        // ============================================================
+        // 신고 (소수의 부적절한 댓글 신고)
+        // ============================================================
+        // 자바vs파이썬 논쟁에서 과열된 댓글 신고
+        reportRepository.save(Report.builder()
+                .user(user3).comment(c1).reason(Report.ReportReason.ABUSE)
+                .build());
+        // 맥북 논쟁에서 비하 댓글 신고
+        reportRepository.save(Report.builder()
+                .user(user5).comment(c6).reason(Report.ReportReason.INAPPROPRIATE)
+                .build());
+    }
+
+    // ============================================================
+    // 헬퍼 메서드
+    // ============================================================
+    private void addView(User user, Post post) {
+        viewLogRepository.save(new ViewLog(user, post));
+        post.increaseViewCount();
+    }
+
+    private void addPostLike(User user, Post post) {
+        postLikeRepository.save(new PostLike(user, post));
+        post.increaseLikeCount();
+    }
+
+    private void addCommentLike(User user, Comment comment) {
+        commentLikeRepository.save(new CommentLike(user, comment));
+        comment.increaseLikeCount();
     }
 }

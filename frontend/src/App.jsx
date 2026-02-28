@@ -13,6 +13,7 @@ import PostEditPage from './pages/PostEditPage';
 import MyPage from './pages/MyPage';
 import NotificationPage from './pages/NotificationPage';
 import AdminPage from './pages/AdminPage';
+import UserProfilePage from './pages/UserProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/posts/:id" element={<PostDetailPage />} />
+                <Route path="/users/:userId" element={<UserProfilePage />} />
 
                 {/* 인증 필요 페이지 */}
                 <Route
@@ -70,7 +72,6 @@ export default function App() {
                     </PrivateRoute>
                   }
                 />
-
                 {/* 404 */}
                 <Route path="*" element={<NotFoundPage />} />
               </Route>

@@ -11,6 +11,7 @@ import com.project.board.domain.post.dto.PostListResponse;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.dto.PasswordChangeRequest;
+import com.project.board.domain.user.dto.UserProfileResponse;
 import com.project.board.domain.user.dto.UserResponse;
 import com.project.board.domain.user.dto.UserUpdateRequest;
 import com.project.board.domain.user.entity.User;
@@ -115,10 +116,17 @@ public class UserService {
     }
 
     // === 추가: 다른 유저 프로필 조회 ===
-    public UserResponse getUserProfile(Long userId) {
+    public UserProfileResponse getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        return new UserProfileResponse(user);
+    }
+
+    // === 추가: 닉네임으로 유저 프로필 조회 ===
+    public UserResponse getUserProfileByNickname(String nickname) {
+        User user = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return new UserResponse(user);
     }
 

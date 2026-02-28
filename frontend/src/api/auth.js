@@ -48,4 +48,16 @@ export const authApi = {
   getMyBookmarks() {
     return client.get('/users/me/bookmarks');
   },
+
+  getUserByNickname(nickname) {
+    return client.get(`/users/nickname/${encodeURIComponent(nickname)}`);
+  },
+
+  getUserProfile(userId) {
+    return client.get(`/users/${userId}`);
+  },
+
+  getUserPosts(userId) {
+    return client.get(`/users/${userId}/posts`);
+  },
 };

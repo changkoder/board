@@ -15,7 +15,9 @@ export default function PostDetailPage() {
   const { showToast } = useToast();
   const [post, setPost] = useState(null);
   const [bookmarked, setBookmarked] = useState(false);
+  const [liked, setLiked] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showReportModal, setShowReportModal] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
 
@@ -25,10 +27,21 @@ export default function PostDetailPage() {
       .then((res) => {
         setPost(res.data.data);
         setBookmarked(res.data.data.bookmarked);
+        setLiked(res.data.data.liked);
+        setError(null);
       })
-      .catch(() => navigate('/'))
+      .catch((err) => {
+        const status = err.response?.status;
+        if (status === 404) {
+          setError('not_found');
+        } else if (status === 400) {
+          setError('bad_request');
+        } else {
+          setError('server');
+        }
+      })
       .finally(() => setLoading(false));
-  }, [id, navigate]);
+  }, [id]);
 
   const handleDelete = async () => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
@@ -47,6 +60,7 @@ export default function PostDetailPage() {
       const res = await postApi.getById(id);
       setPost(res.data.data);
       setBookmarked(res.data.data.bookmarked);
+      setLiked(res.data.data.liked);
     } catch (err) {
       showToast(err.response?.data?.message || '좋아요 처리에 실패했습니다.', 'error');
     }
@@ -72,6 +86,23 @@ export default function PostDetailPage() {
   };
 
   if (loading) return <div className="loading">로딩 중...</div>;
+  if (error === 'not_found' || error === 'bad_request') return (
+    <div className="page">
+      <div className="error-state">
+        <p>게시글을 찾을 수 없습니다.</p>
+        <Link to="/" className="btn btn-primary" style={{ marginTop: '16px' }}>목록으로</Link>
+      </div>
+    </div>
+  );
+  if (error === 'server') return (
+    <div className="page">
+      <div className="error-state">
+        <p>서버에 문제가 발생했습니다.</p>
+        <p>잠시 후 다시 시도해주세요.</p>
+        <button onClick={() => window.location.reload()} className="btn btn-primary" style={{ marginTop: '16px' }}>다시 시도</button>
+      </div>
+    </div>
+  );
   if (!post) return null;
 
   const isAuthor = user && user.id === post.authorId;
@@ -115,7 +146,19 @@ export default function PostDetailPage() {
         <div className="post-header">
           <h1>{post.title}</h1>
           <div className="post-meta">
-            <span>{post.authorNickname}</span>
+            <span
+              className="author-cell nickname-link"
+              onClick={() => navigate(`/users/${post.authorId}`)}
+            >
+              <span className="inline-avatar">
+                {post.authorProfileImg ? (
+                  <img src={post.authorProfileImg} alt="" />
+                ) : (
+                  <span className="inline-avatar-placeholder">{post.authorNickname?.charAt(0)}</span>
+                )}
+              </span>
+              {post.authorNickname}
+            </span>
             <span>{new Date(post.createdAt).toLocaleString()}</span>
             <span>조회 {post.viewCount}</span>
             <span>좋아요 {post.likeCount}</span>
@@ -142,8 +185,8 @@ export default function PostDetailPage() {
         <div className="post-actions">
           {isAuthenticated && (
             <>
-              <button onClick={handleLike} className="btn">
-                좋아요 {post.likeCount}
+              <button onClick={handleLike} className={`btn ${liked ? 'btn-liked' : ''}`}>
+                {liked ? '❤' : '♡'} 좋아요 {post.likeCount}
               </button>
               <button onClick={handleBookmark} className={`btn ${bookmarked ? 'btn-primary' : ''}`}>
                 {bookmarked ? '북마크 해제' : '북마크'}

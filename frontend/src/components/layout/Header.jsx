@@ -31,8 +31,13 @@ export default function Header() {
                   <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
                 )}
               </Link>
-              <Link to="/mypage" className="nav-link">
-                마이페이지
+              <Link to="/mypage" className="nav-link nav-profile">
+                {user.profileImg ? (
+                  <img src={user.profileImg} alt={user.nickname} className="nav-profile-img" />
+                ) : (
+                  <span className="nav-profile-placeholder">{user.nickname.charAt(0)}</span>
+                )}
+                {user.nickname}
               </Link>
               {user.role === 'ADMIN' && (
                 <Link to="/admin" className="nav-link">

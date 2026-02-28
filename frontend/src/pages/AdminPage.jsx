@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { adminApi } from '../api/admin';
+import { useAuth } from '../contexts/AuthContext';
 
 const TABS = [
   { key: 'hiddenPosts', label: '숨김 게시글' },
@@ -8,9 +10,19 @@ const TABS = [
 ];
 
 export default function AdminPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('hiddenPosts');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  // 관리자가 아니면 홈으로
+  useEffect(() => {
+    if (user && user.role !== 'ADMIN') {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   const fetchData = () => {
     setLoading(true);
@@ -21,8 +33,14 @@ export default function AdminPage() {
     };
 
     fetcher[activeTab]()
-      .then((res) => setData(res.data.data))
-      .catch(() => setData([]))
+      .then((res) => {
+        setData(res.data.data);
+        setError(false);
+      })
+      .catch(() => {
+        setData([]);
+        setError(true);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -95,6 +113,12 @@ export default function AdminPage() {
 
       {loading ? (
         <div className="loading">로딩 중...</div>
+      ) : error ? (
+        <div className="error-state">
+          <p>데이터를 불러올 수 없습니다.</p>
+          <p>잠시 후 다시 시도해주세요.</p>
+          <button onClick={fetchData} className="btn btn-primary" style={{ marginTop: '16px' }}>다시 시도</button>
+        </div>
       ) : data.length === 0 ? (
         <p className="empty">항목이 없습니다.</p>
       ) : activeTab === 'hiddenPosts' ? (

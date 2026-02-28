@@ -3,6 +3,7 @@ package com.project.board.domain.user.controller;
 import com.project.board.domain.comment.dto.CommentResponse;
 import com.project.board.domain.post.dto.PostListResponse;
 import com.project.board.domain.user.dto.PasswordChangeRequest;
+import com.project.board.domain.user.dto.UserProfileResponse;
 import com.project.board.domain.user.dto.UserResponse;
 import com.project.board.domain.user.dto.UserUpdateRequest;
 import com.project.board.domain.user.service.UserService;
@@ -81,8 +82,15 @@ public class UserController {
 
     // === 추가: 다른 유저 프로필 조회 ===
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserProfile(@PathVariable Long userId) {
-        UserResponse response = userService.getUserProfile(userId);
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getUserProfile(@PathVariable Long userId) {
+        UserProfileResponse response = userService.getUserProfile(userId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    // === 추가: 닉네임으로 유저 프로필 조회 ===
+    @GetMapping("/nickname/{nickname}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUserByNickname(@PathVariable String nickname) {
+        UserResponse response = userService.getUserProfileByNickname(nickname);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

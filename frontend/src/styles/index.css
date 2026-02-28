@@ -181,6 +181,18 @@ a:hover {
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
+.btn-liked {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border-color: #fecaca;
+}
+
+.btn-liked:hover {
+  background: #fee2e2;
+  border-color: var(--color-danger);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -447,6 +459,59 @@ a:hover {
   letter-spacing: 0.2px;
 }
 
+/* === 닉네임 링크 (게시글/댓글 작성자) === */
+.nickname-link {
+  cursor: pointer;
+  transition: color var(--transition);
+}
+.nickname-link:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+/* === 인라인 아바타 (게시글 목록/상세/댓글) === */
+.author-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+}
+
+.inline-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.inline-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.inline-avatar-sm {
+  width: 28px;
+  height: 28px;
+}
+
+.inline-avatar-sm .inline-avatar-placeholder {
+  font-size: 0.75rem;
+}
+
 /* === 프로필 카드 === */
 .profile-card {
   padding: 28px;
@@ -455,6 +520,54 @@ a:hover {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
+}
+
+.profile-avatar-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.mypage-avatar {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid var(--color-primary-subtle);
+}
+.mypage-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mypage-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 2.8rem;
+  font-weight: 700;
+}
+.mypage-avatar-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  text-align: center;
+  font-size: 0.7rem;
+  padding: 4px 0;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.mypage-avatar:hover .mypage-avatar-overlay {
+  opacity: 1;
 }
 
 .profile-info p {
@@ -620,6 +733,18 @@ a:hover {
   font-size: 1rem;
 }
 
+/* === 에러 상태 === */
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-mid);
+  font-size: 0.95rem;
+}
+
+.error-state p {
+  margin-bottom: 4px;
+}
+
 /* === 로딩 === */
 .loading {
   text-align: center;
@@ -634,6 +759,24 @@ a:hover {
   padding: 48px;
   color: var(--color-text-light);
   font-size: 0.93rem;
+}
+
+/* === 목록 하단 (페이지네이션 + 글쓰기) === */
+.list-footer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 28px;
+}
+
+.list-footer .pagination {
+  margin-top: 0;
+}
+
+.list-footer > .btn {
+  position: absolute;
+  right: 0;
 }
 
 /* === 검색 바 === */
@@ -746,12 +889,6 @@ a:hover {
 
 .comment-list-detail .comment:last-child {
   border-bottom: none;
-}
-
-.comment-child {
-  margin-left: 32px;
-  padding-left: 16px;
-  border-left: 2px solid var(--color-primary-subtle);
 }
 
 .comment-header {
@@ -1098,6 +1235,34 @@ a:hover {
   box-shadow: var(--shadow-lg);
 }
 
+/* === 헤더 프로필 === */
+.nav-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-profile-img {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--color-border);
+}
+
+.nav-profile-placeholder {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 /* === 알림 배지 === */
 .nav-notification {
   position: relative;
@@ -1275,6 +1440,87 @@ a:hover {
   color: var(--color-white);
 }
 
+/* === 멘션 텍스트 === */
+.mention-text {
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.mention-text:hover {
+  text-decoration: underline;
+}
+
+/* === 대댓글 개선 === */
+.comment-list-detail .comment.comment-child {
+  margin-left: 40px;
+  padding-left: 16px;
+  border-left: 3px solid var(--color-primary-subtle);
+  background: var(--color-border-light);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.reply-toggle {
+  margin-top: 8px;
+  color: var(--color-text-mid) !important;
+  font-size: 0.82rem !important;
+}
+
+/* === 유저 프로필 페이지 === */
+.user-profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  margin-bottom: 28px;
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.user-profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 3px solid var(--color-primary-subtle);
+}
+
+.user-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-profile-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.user-profile-nickname {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.user-profile-posts-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--color-text);
+}
+
 /* === 반응형 === */
 @media (max-width: 640px) {
   .main {
@@ -1310,5 +1556,14 @@ a:hover {
   .table td {
     padding: 10px 12px;
     font-size: 0.84rem;
+  }
+
+  .comment-child {
+    margin-left: 20px;
+    padding-left: 12px;
+  }
+
+  .user-profile-header {
+    padding: 24px;
   }
 }

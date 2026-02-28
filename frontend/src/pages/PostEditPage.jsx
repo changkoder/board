@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { postApi } from '../api/posts';
 import { imageApi } from '../api/images';
 import { useToast } from '../contexts/ToastContext';
@@ -24,6 +24,7 @@ export default function PostEditPage() {
   const [imageUrls, setImageUrls] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // 관리자는 공지 카테고리 포함
   const categories =
@@ -41,7 +42,14 @@ export default function PostEditPage() {
         const cat = ALL_CATEGORIES.find((c) => c.name === post.categoryName);
         if (cat) setCategoryId(String(cat.id));
       })
-      .catch(() => navigate('/'))
+      .catch((err) => {
+        const status = err.response?.status;
+        if (status === 404 || status === 400) {
+          setError('not_found');
+        } else {
+          setError('server');
+        }
+      })
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
@@ -78,6 +86,23 @@ export default function PostEditPage() {
   };
 
   if (loading) return <div className="loading">로딩 중...</div>;
+  if (error === 'not_found') return (
+    <div className="page">
+      <div className="error-state">
+        <p>게시글을 찾을 수 없습니다.</p>
+        <Link to="/" className="btn btn-primary" style={{ marginTop: '16px' }}>목록으로</Link>
+      </div>
+    </div>
+  );
+  if (error === 'server') return (
+    <div className="page">
+      <div className="error-state">
+        <p>서버에 문제가 발생했습니다.</p>
+        <p>잠시 후 다시 시도해주세요.</p>
+        <button onClick={() => window.location.reload()} className="btn btn-primary" style={{ marginTop: '16px' }}>다시 시도</button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="page">

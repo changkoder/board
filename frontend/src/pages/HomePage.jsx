@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { postApi } from '../api/posts';
+import { useAuth } from '../contexts/AuthContext';
 
 const SEARCH_TYPES = [
   { value: 'TITLE', label: '제목' },
@@ -17,6 +18,8 @@ const CATEGORY_TABS = [
 ];
 
 export default function HomePage() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [posts, setPosts] = useState([]);
   const [notices, setNotices] = useState([]);
   const [popularPosts, setPopularPosts] = useState([]);
@@ -31,6 +34,7 @@ export default function HomePage() {
   const [isSearching, setIsSearching] = useState(false);
   const [activeKeyword, setActiveKeyword] = useState('');
   const [activeSearchType, setActiveSearchType] = useState('');
+  const [error, setError] = useState(false);
 
   // 인기글 로드 (최초 1회)
   useEffect(() => {
@@ -52,6 +56,7 @@ export default function HomePage() {
 
     request
       .then((res) => {
+        setError(false);
         if (isSearching) {
           setPosts(res.data.data.content);
           setTotalPages(res.data.data.totalPages);
@@ -66,6 +71,7 @@ export default function HomePage() {
         setPosts([]);
         setNotices([]);
         setTotalPages(0);
+        setError(true);
       })
       .finally(() => setLoading(false));
   };
@@ -191,6 +197,14 @@ export default function HomePage() {
       {/* 게시글 목록 */}
       {loading ? (
         <div className="loading">로딩 중...</div>
+      ) : error ? (
+        <div className="error-state">
+          <p>서버에 문제가 발생했습니다.</p>
+          <p>잠시 후 다시 시도해주세요.</p>
+          <button onClick={fetchPosts} className="btn btn-primary" style={{ marginTop: '16px' }}>
+            다시 시도
+          </button>
+        </div>
       ) : (
         <div className="post-list">
           {notices.length === 0 && posts.length === 0 ? (
@@ -223,7 +237,18 @@ export default function HomePage() {
                         )}
                       </Link>
                     </td>
-                    <td>{post.authorNickname}</td>
+                    <td>
+                      <span className="author-cell nickname-link" onClick={() => navigate(`/users/${post.authorId}`)}>
+                        <span className="inline-avatar">
+                          {post.authorProfileImg ? (
+                            <img src={post.authorProfileImg} alt="" />
+                          ) : (
+                            <span className="inline-avatar-placeholder">{post.authorNickname?.charAt(0)}</span>
+                          )}
+                        </span>
+                        {post.authorNickname}
+                      </span>
+                    </td>
                     <td>{post.viewCount}</td>
                     <td>{post.likeCount}</td>
                     <td>{new Date(post.createdAt).toLocaleDateString()}</td>
@@ -241,7 +266,18 @@ export default function HomePage() {
                         )}
                       </Link>
                     </td>
-                    <td>{post.authorNickname}</td>
+                    <td>
+                      <span className="author-cell nickname-link" onClick={() => navigate(`/users/${post.authorId}`)}>
+                        <span className="inline-avatar">
+                          {post.authorProfileImg ? (
+                            <img src={post.authorProfileImg} alt="" />
+                          ) : (
+                            <span className="inline-avatar-placeholder">{post.authorNickname?.charAt(0)}</span>
+                          )}
+                        </span>
+                        {post.authorNickname}
+                      </span>
+                    </td>
                     <td>{post.viewCount}</td>
                     <td>{post.likeCount}</td>
                     <td>{new Date(post.createdAt).toLocaleDateString()}</td>
@@ -253,31 +289,36 @@ export default function HomePage() {
         </div>
       )}
 
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button onClick={() => setPage(0)} disabled={page === 0}>
-            &laquo;
-          </button>
-          <button onClick={() => setPage(page - 1)} disabled={page === 0}>
-            &lsaquo;
-          </button>
-          {getPageNumbers().map((p) => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              className={page === p ? 'page-active' : ''}
-            >
-              {p + 1}
+      <div className="list-footer">
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button onClick={() => setPage(0)} disabled={page === 0}>
+              &laquo;
             </button>
-          ))}
-          <button onClick={() => setPage(page + 1)} disabled={page >= totalPages - 1}>
-            &rsaquo;
-          </button>
-          <button onClick={() => setPage(totalPages - 1)} disabled={page >= totalPages - 1}>
-            &raquo;
-          </button>
-        </div>
-      )}
+            <button onClick={() => setPage(page - 1)} disabled={page === 0}>
+              &lsaquo;
+            </button>
+            {getPageNumbers().map((p) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={page === p ? 'page-active' : ''}
+              >
+                {p + 1}
+              </button>
+            ))}
+            <button onClick={() => setPage(page + 1)} disabled={page >= totalPages - 1}>
+              &rsaquo;
+            </button>
+            <button onClick={() => setPage(totalPages - 1)} disabled={page >= totalPages - 1}>
+              &raquo;
+            </button>
+          </div>
+        )}
+        {isAuthenticated && (
+          <Link to="/posts/new" className="btn btn-primary">글쓰기</Link>
+        )}
+      </div>
     </div>
   );
 }

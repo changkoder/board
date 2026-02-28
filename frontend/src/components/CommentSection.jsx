@@ -1,14 +1,59 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { commentApi } from '../api/comments';
 import { reportApi } from '../api/reports';
+import { authApi } from '../api/auth';
 import ReportModal from './ReportModal';
 import { adminApi } from '../api/admin';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 
+function MentionText({ content }) {
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+
+  const handleMentionClick = async (nickname) => {
+    try {
+      const res = await authApi.getUserByNickname(nickname);
+      navigate(`/users/${res.data.data.id}`);
+    } catch {
+      showToast('존재하지 않는 사용자입니다.', 'error');
+    }
+  };
+
+  const parts = [];
+  const regex = /@(\S+)/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(content.slice(lastIndex, match.index));
+    }
+    const nickname = match[1];
+    parts.push(
+      <span
+        key={match.index}
+        className="mention-text"
+        onClick={() => handleMentionClick(nickname)}
+      >
+        @{nickname}
+      </span>
+    );
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex));
+  }
+
+  return <>{parts}</>;
+}
+
 export default function CommentSection({ postId }) {
   const { user, isAuthenticated } = useAuth();
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [replyTo, setReplyTo] = useState(null);
@@ -16,13 +61,21 @@ export default function CommentSection({ postId }) {
   const [editingId, setEditingId] = useState(null);
   const [editContent, setEditContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
+  const [collapsedReplies, setCollapsedReplies] = useState({});
 
   const fetchComments = () => {
     commentApi
       .getByPostId(postId)
-      .then((res) => setComments(res.data.data))
-      .catch(() => setComments([]))
+      .then((res) => {
+        setComments(res.data.data);
+        setError(false);
+      })
+      .catch(() => {
+        setComments([]);
+        setError(true);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -127,12 +180,28 @@ export default function CommentSection({ postId }) {
     }
   };
 
+  const toggleReplies = (commentId) => {
+    setCollapsedReplies((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
+  };
+
   const isAdmin = user && user.role === 'ADMIN';
 
-  const renderComment = (comment, isChild = false) => (
+  const renderComment = (comment, isChild = false, rootParentId = null) => (
     <div key={comment.id} className={`comment ${isChild ? 'comment-child' : ''}`}>
       <div className="comment-header">
-        <strong>{comment.authorNickname}</strong>
+        <span className="inline-avatar inline-avatar-sm">
+          {comment.authorProfileImg ? (
+            <img src={comment.authorProfileImg} alt="" />
+          ) : (
+            <span className="inline-avatar-placeholder">{comment.authorNickname?.charAt(0)}</span>
+          )}
+        </span>
+        <strong
+          className="nickname-link"
+          onClick={() => navigate(`/users/${comment.authorId}`)}
+        >
+          {comment.authorNickname}
+        </strong>
         <span className="comment-date">
           {new Date(comment.createdAt).toLocaleString()}
         </span>
@@ -155,7 +224,9 @@ export default function CommentSection({ postId }) {
           </div>
         </div>
       ) : (
-        <p className="comment-body">{comment.content}</p>
+        <p className="comment-body">
+          <MentionText content={comment.content} />
+        </p>
       )}
 
       <div className="comment-actions">
@@ -164,17 +235,20 @@ export default function CommentSection({ postId }) {
             <button onClick={() => handleLike(comment.id)} className="btn-text">
               좋아요 {comment.likeCount}
             </button>
-            {!isChild && (
-              <button
-                onClick={() => {
-                  setReplyTo(replyTo === comment.id ? null : comment.id);
+            <button
+              onClick={() => {
+                if (replyTo === comment.id) {
+                  setReplyTo(null);
                   setReplyContent('');
-                }}
-                className="btn-text"
-              >
-                답글
-              </button>
-            )}
+                } else {
+                  setReplyTo(comment.id);
+                  setReplyContent(isChild ? `@${comment.authorNickname} ` : '');
+                }
+              }}
+              className="btn-text"
+            >
+              답글
+            </button>
             {user && user.id === comment.authorId && (
               <>
                 <button
@@ -213,9 +287,12 @@ export default function CommentSection({ postId }) {
         )}
       </div>
 
-      {/* 답글 폼 */}
+      {/* 답글 폼 - 해당 댓글 바로 아래에 표시 */}
       {replyTo === comment.id && (
-        <form onSubmit={(e) => handleReply(e, comment.id)} className="reply-form">
+        <form
+          onSubmit={(e) => handleReply(e, isChild ? (rootParentId || comment.id) : comment.id)}
+          className="reply-form"
+        >
           <textarea
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
@@ -235,8 +312,20 @@ export default function CommentSection({ postId }) {
       )}
 
       {/* 대댓글 */}
-      {comment.children &&
-        comment.children.map((child) => renderComment(child, true))}
+      {!isChild && comment.children && comment.children.length > 0 && (
+        <>
+          <button
+            onClick={() => toggleReplies(comment.id)}
+            className="btn-text reply-toggle"
+          >
+            {collapsedReplies[comment.id]
+              ? `답글 ${comment.children.length}개 보기`
+              : `답글 접기`}
+          </button>
+          {!collapsedReplies[comment.id] &&
+            comment.children.map((child) => renderComment(child, true, comment.id))}
+        </>
+      )}
     </div>
   );
 
@@ -266,7 +355,12 @@ export default function CommentSection({ postId }) {
 
       {/* 댓글 목록 */}
       <div className="comment-list-detail">
-        {comments.length === 0 ? (
+        {error ? (
+          <div className="error-state">
+            <p>댓글을 불러올 수 없습니다.</p>
+            <button onClick={fetchComments} className="btn btn-sm" style={{ marginTop: '8px' }}>다시 시도</button>
+          </div>
+        ) : comments.length === 0 ? (
           <p className="empty">댓글이 없습니다.</p>
         ) : (
           comments.map((comment) => renderComment(comment))

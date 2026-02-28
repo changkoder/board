@@ -14,6 +14,7 @@ public class CommentResponse {
     private String content;
     private Long authorId;
     private String authorNickname;
+    private String authorProfileImg;
     private int likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -28,6 +29,7 @@ public class CommentResponse {
                 .content(comment.getContent())
                 .authorId(comment.getUser().getId())
                 .authorNickname(comment.getUser().getNickname())
+                .authorProfileImg(comment.getUser().getProfileImg())
                 .likeCount(comment.getLikeCount())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
@@ -44,6 +46,7 @@ public class CommentResponse {
                 .content(comment.getContent())
                 .authorId(comment.getUser().getId())
                 .authorNickname(comment.getUser().getNickname())
+                .authorProfileImg(comment.getUser().getProfileImg())
                 .likeCount(comment.getLikeCount())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())

@@ -60,7 +60,6 @@ client.interceptors.response.use(
         isRefreshing = false;
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
         return Promise.reject(error);
       }
 
@@ -80,7 +79,8 @@ client.interceptors.response.use(
         processQueue(refreshError, null);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        sessionStorage.setItem('sessionExpired', 'true');
+        window.dispatchEvent(new Event('auth:session-expired'));
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
