@@ -67,7 +67,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void markAllAsRead(Long userId) { //여기는 왜 알림 아이디 필요없나
+    public void markAllAsRead(Long userId) {
         notificationRepository.markAllAsRead(userId);
     }
 }

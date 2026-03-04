@@ -115,7 +115,6 @@ public class UserService {
                 .toList();
     }
 
-    // === 추가: 다른 유저 프로필 조회 ===
     public UserProfileResponse getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -123,14 +122,12 @@ public class UserService {
         return new UserProfileResponse(user);
     }
 
-    // === 추가: 닉네임으로 유저 프로필 조회 ===
     public UserResponse getUserProfileByNickname(String nickname) {
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return new UserResponse(user);
     }
 
-    // === 추가: 다른 유저가 쓴 글 목록 ===
     public List<PostListResponse> getUserPosts(Long userId) {
         List<Post> posts = postRepository.findByUserId(userId);
         return posts.stream()

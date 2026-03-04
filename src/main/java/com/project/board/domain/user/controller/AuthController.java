@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController//restcontroller 기능이 뭐더라
+@RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService; //왜 파이널을 붙이더라
+    private final AuthService authService;
 
-    @PostMapping("/signup")                                        //requestbody 어노테이션의 기능
+    @PostMapping("/signup")
     public ResponseEntity<ApiResponse<UserResponse>> signup(@Valid @RequestBody SignupRequest request) {
         UserResponse response = authService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED)

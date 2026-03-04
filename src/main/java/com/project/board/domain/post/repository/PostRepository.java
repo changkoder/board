@@ -11,11 +11,6 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom{
 
-    @Query("SELECT p FROM Post p WHERE p.deleted = false AND p.hidden = false AND p.category.name != '공지'")
-    Page<Post> findAllActive(Pageable pageable);
-
-    @Query("SELECT p FROM Post p WHERE p.category.id = :categoryId AND p.deleted = false AND p.hidden = false")
-    Page<Post> findByCategoryActive(@Param("categoryId") Long categoryId, Pageable pageable);
 
     @Query("SELECT p FROM Post p JOIN FETCH p.user JOIN FETCH p.category WHERE p.hidden = true AND p.deleted = false")
     List<Post> findByHiddenTrueAndDeletedFalse();

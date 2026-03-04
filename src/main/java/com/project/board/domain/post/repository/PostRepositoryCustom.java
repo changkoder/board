@@ -15,6 +15,8 @@ public interface PostRepositoryCustom {
 
     List<Post> findAllNoOffset(Long lastPostId, int size);
 
+    Page<Post> findAllActive(Pageable pageable);
 
+    Page<Post> findByCategoryActive(Long categoryId, Pageable pageable);
 }
 

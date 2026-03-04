@@ -55,6 +55,17 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        // 탈퇴한 유저 체크
+        if(user.isDeleted()){
+            throw new CustomException(ErrorCode.USER_DELETED);
+        }
+
+        // 차단된 유저 체크
+        if(user.getStatus() == User.Status.BLOCKED){
+            throw new CustomException(ErrorCode.USER_BLOCKED);
+        }
+
+
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }

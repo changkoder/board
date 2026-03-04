@@ -80,21 +80,18 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // === 추가: 다른 유저 프로필 조회 ===
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserProfileResponse>> getUserProfile(@PathVariable Long userId) {
         UserProfileResponse response = userService.getUserProfile(userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // === 추가: 닉네임으로 유저 프로필 조회 ===
     @GetMapping("/nickname/{nickname}")
     public ResponseEntity<ApiResponse<UserResponse>> getUserByNickname(@PathVariable String nickname) {
         UserResponse response = userService.getUserProfileByNickname(nickname);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // === 추가: 다른 유저가 쓴 글 목록 ===
     @GetMapping("/{userId}/posts")
     public ResponseEntity<ApiResponse<List<PostListResponse>>> getUserPosts(@PathVariable Long userId) {
         List<PostListResponse> response = userService.getUserPosts(userId);

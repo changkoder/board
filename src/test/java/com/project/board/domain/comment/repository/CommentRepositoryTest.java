@@ -76,7 +76,6 @@ class CommentRepositoryTest {
 
         // then
         assertThat(parents).hasSize(5);
-        // fetch join 동작하면 User 접근 시 추가 쿼리 없음
         parents.forEach(c -> assertThat(c.getUser().getNickname()).isEqualTo("tester"));
     }
 

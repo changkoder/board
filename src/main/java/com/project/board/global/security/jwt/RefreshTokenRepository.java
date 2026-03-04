@@ -14,7 +14,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     Optional<RefreshToken> findByToken(String token);
     void deleteByUserId(Long userId);
 
-    // === 추가 ===
     @Modifying
     @Query("DELETE FROM RefreshToken rt WHERE rt.expiresAt < :now")
     int deleteExpiredTokens(@Param("now") LocalDateTime now);

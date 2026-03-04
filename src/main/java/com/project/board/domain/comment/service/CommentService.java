@@ -58,6 +58,13 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        if(post.isDeleted()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+        if(post.isHidden()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -65,6 +72,13 @@ public class CommentService {
         if(request.getParentId() != null){
             parent = commentRepository.findById(request.getParentId())
                     .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+            if(parent.isDeleted()){
+                throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+            }
+            if(parent.isHidden()){
+                throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+            }
 
             // 대대댓글 방지: 부모가 이미 대댓글이면 부모의 부모를 parent로
             if(parent.getParent() != null){
@@ -143,6 +157,13 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
+        if(comment.isDeleted()){
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+        if(comment.isHidden()){
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+
         if (!comment.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
@@ -156,6 +177,13 @@ public class CommentService {
     public void delete(Long commentId, Long userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if(comment.isDeleted()){
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+        if(comment.isHidden()){
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
 
         if (!comment.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorCode.FORBIDDEN);

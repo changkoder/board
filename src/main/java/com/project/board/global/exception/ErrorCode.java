@@ -23,6 +23,8 @@ public enum ErrorCode {
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다"),
     SAME_PASSWORD(HttpStatus.BAD_REQUEST, "새 비밀번호가 기존 비밀번호와 동일합니다."),
+    USER_BLOCKED(HttpStatus.FORBIDDEN, "차단된 계정입니다."),
+    USER_DELETED(HttpStatus.FORBIDDEN, "탈퇴한 계정입니다."),
 
     //게시글
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),

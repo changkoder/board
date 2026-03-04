@@ -23,7 +23,7 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 20, unique = true)//멘션 기능을 위해 유니크 제약 추가
+    @Column(nullable = false, length = 20, unique = true)
     private String nickname;
 
     private String profileImg;
@@ -80,7 +80,6 @@ public class User extends BaseEntity {
         }
     }
 
-    //이넘을 이렇게 내부 클래스로 만들어도 괜찮나? 분리하는게 낫지 않나?
     public enum Role{
         USER, ADMIN;
 

@@ -31,6 +31,13 @@ public class BookmarkService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        if(post.isDeleted()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+        if(post.isHidden()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+
         Optional<Bookmark> existingBookmark = bookmarkRepository.findByUserAndPost(userId, postId);
 
         if (existingBookmark.isPresent()) {

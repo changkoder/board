@@ -35,6 +35,6 @@ public class PostLike {
     public PostLike(User user, Post post) {
         this.user = user;
         this.post = post;
-        this.createdAt = LocalDateTime.now(); //업데이트시간 필요없어서 BaseEntity 안씀
+        this.createdAt = LocalDateTime.now();
     }
 }

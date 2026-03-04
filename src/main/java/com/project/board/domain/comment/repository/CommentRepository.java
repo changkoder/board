@@ -15,7 +15,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "AND c.parent IS NULL " +
             "AND c.deleted = false " +
             "AND c.hidden = false " +
-            "ORDER BY c.createdAt ASC") //사실 해당 유저의 모든 정보가 필요하진 않지 않나
+            "ORDER BY c.createdAt ASC")
     List<Comment> findParentsByPostId(@Param("postId") Long postId);
 
     @Query("SELECT c FROM Comment c " +

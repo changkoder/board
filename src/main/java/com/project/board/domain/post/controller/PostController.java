@@ -63,7 +63,7 @@ public class PostController {
     ){
         PostResponse response;
 
-        if(userId != null){ //로그인 회원 조회 엔티티 추가, 비회원은 x
+        if(userId != null){
             response = postService.findById(postId, userId);
         } else {
             response = postService.findById(postId);

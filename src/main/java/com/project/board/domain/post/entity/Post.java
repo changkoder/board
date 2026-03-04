@@ -25,7 +25,7 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)//매니투 원쪽이 주인?이였나? 외키 들고있어서? jpa 기본개념이 좀 기억이 안남
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
@@ -50,7 +50,6 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private boolean deleted;
 
-    //@BatchSize(size = 100) 나중에 포스트 목록에 썸네일 추가시 사용 예정
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostImage> images = new ArrayList<>();
 
@@ -116,7 +115,6 @@ public class Post extends BaseEntity {
 
     public void removeImage(PostImage image) {
         this.images.remove(image);
-        //image.setPost(null); orphanremoval 때문에 이건 굳이 안해도 됨
     }
 
     public void clearImages() {

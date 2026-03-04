@@ -40,6 +40,13 @@ public class LikeService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        if(post.isDeleted()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+        if(post.isHidden()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+
         Optional<PostLike> existingLike = postLikeRepository.findByUserAndPost(userId, postId);
 
         if(existingLike.isPresent()){
@@ -70,6 +77,13 @@ public class LikeService {
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if(comment.isDeleted()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+        if(comment.isHidden()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
 
         Optional<CommentLike> existingLike = commentLikeRepository.findByUserAndComment(userId, commentId);
 

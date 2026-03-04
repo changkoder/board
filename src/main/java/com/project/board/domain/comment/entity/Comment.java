@@ -22,15 +22,15 @@ public class Comment extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)// 생각해보니 조인 칼럼에서 네임 속성은 해당 필드의 디비에서의 이름을 정하는건가?
-    private Post post;// 어떤 필드는 nullable = false를 해주고 어떤 필드는 그걸 명시 안하는데 이유가 뭐지 디폴트 값이 뭐지
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")//nullable = true 해야하는거 아닌가
+    @JoinColumn(name = "parent_id")
     private Comment parent;
 
     @OneToMany(mappedBy = "parent")

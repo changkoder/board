@@ -37,12 +37,12 @@ public class JwtTokenProvider {
 
     public Long getUserId(String token){
         Claims claims = parseClaims(token);
-        return Long.parseLong(claims.getSubject()); //왜 parselong 하지? 그리고 getsubject가 아이디 가져오는 메서드인가
+        return Long.parseLong(claims.getSubject());
     }
 
     public String getRole(String token) {
         Claims claims = parseClaims(token);
-        return claims.get("role", String.class); //그냥 겟 메서드하면 역할을 가져오나? 메서드 네임이 너무 포괄적인거같다
+        return claims.get("role", String.class);
     }
 
     public boolean validateToken(String token){

@@ -106,4 +106,60 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
             case TITLE_CONTENT -> post.title.contains(keyword).or(post.content.contains(keyword));
         };
     }
+
+    @Override
+    public Page<Post> findAllActive(Pageable pageable) {
+        List<Post> content = queryFactory
+                .selectFrom(post)
+                .join(post.user).fetchJoin()
+                .join(post.category).fetchJoin()
+                .where(
+                        post.deleted.eq(false),
+                        post.hidden.eq(false),
+                        post.category.name.ne("공지")
+                )
+                .orderBy(post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(post.count())
+                .from(post)
+                .where(
+                        post.deleted.eq(false),
+                        post.hidden.eq(false),
+                        post.category.name.ne("공지")
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
+    }
+
+    @Override
+    public Page<Post> findByCategoryActive(Long categoryId, Pageable pageable) {
+        List<Post> content = queryFactory
+                .selectFrom(post)
+                .join(post.user).fetchJoin()
+                .join(post.category).fetchJoin()
+                .where(
+                        post.deleted.eq(false),
+                        post.hidden.eq(false),
+                        post.category.id.eq(categoryId)
+                )
+                .orderBy(post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(post.count())
+                .from(post)
+                .where(
+                        post.deleted.eq(false),
+                        post.hidden.eq(false),
+                        post.category.id.eq(categoryId)
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
+    }
 }

@@ -80,7 +80,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse create(Long userId, PostCreateRequest request){//서비스 계층이 받는 정보는 주로 아이디만 받나보군
+    public PostResponse create(Long userId, PostCreateRequest request){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -88,7 +88,6 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
 
-        // ← 추가: 공지 카테고리는 관리자만 작성 가능
         if (category.getName().equals("공지") && user.getRole() != User.Role.ADMIN) {
             throw new CustomException(ErrorCode.NOTICE_ADMIN_ONLY);
         }
@@ -122,6 +121,13 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        if(post.isDeleted()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+        if(post.isHidden()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+
         return PostResponse.from(post);
     }
 
@@ -129,6 +135,13 @@ public class PostService {
     public PostResponse findById(Long postId, Long userId){
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if(post.isDeleted()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+        if(post.isHidden()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -148,19 +161,23 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        if(post.isDeleted()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+        if(post.isHidden()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+
         if(!post.getUser().getId().equals(userId)){
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
-        //카테고리는 수정 못하나?
 
         post.update(request.getTitle(), request.getContent(), category);
 
         post.clearImages();
-        //만약 수정창에서 사용자가 이미지를 그대로 뒀어도, 다 클리어하고 새로 업로드 하는 형식인건가
-        //즉 사용자가 이미지를 그대로 둬도 같은 이미지로 요청이 다시 오는 방식인건가
         if (request.getImageUrls() != null) {
             for (int i = 0; i < request.getImageUrls().size(); i++) {
                 PostImage image = PostImage.builder()
@@ -178,6 +195,13 @@ public class PostService {
     public void delete(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if(post.isDeleted()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+        if(post.isHidden()){
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
 
         if (!post.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
