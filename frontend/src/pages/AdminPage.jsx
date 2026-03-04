@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminApi } from '../api/admin';
 import { useAuth } from '../contexts/AuthContext';
+import Pagination from '../components/Pagination';
 
 const TABS = [
   { key: 'hiddenPosts', label: '숨김 게시글' },
@@ -14,8 +15,12 @@ export default function AdminPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('hiddenPosts');
   const [data, setData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+
+  const isPaginatedTab = activeTab !== 'blockedUsers';
 
   // 관리자가 아니면 홈으로
   useEffect(() => {
@@ -26,27 +31,43 @@ export default function AdminPage() {
 
   const fetchData = () => {
     setLoading(true);
-    const fetcher = {
-      hiddenPosts: adminApi.getHiddenPosts,
-      hiddenComments: adminApi.getHiddenComments,
-      blockedUsers: adminApi.getBlockedUsers,
-    };
 
-    fetcher[activeTab]()
+    let request;
+    if (activeTab === 'hiddenPosts') {
+      request = adminApi.getHiddenPosts(page);
+    } else if (activeTab === 'hiddenComments') {
+      request = adminApi.getHiddenComments(page);
+    } else {
+      request = adminApi.getBlockedUsers();
+    }
+
+    request
       .then((res) => {
-        setData(res.data.data);
+        if (isPaginatedTab) {
+          setData(res.data.data.content);
+          setTotalPages(res.data.data.totalPages);
+        } else {
+          setData(res.data.data);
+          setTotalPages(0);
+        }
         setError(false);
       })
       .catch(() => {
         setData([]);
+        setTotalPages(0);
         setError(true);
       })
       .finally(() => setLoading(false));
   };
 
+  const handleTabChange = (tabKey) => {
+    setActiveTab(tabKey);
+    setPage(0);
+  };
+
   useEffect(() => {
     fetchData();
-  }, [activeTab]);
+  }, [activeTab, page]);
 
   const handleRestorePost = async (postId) => {
     try {
@@ -97,14 +118,14 @@ export default function AdminPage() {
 
   return (
     <div className="page">
-      <h1>관리자</h1>
+      <h1>관리자페이지</h1>
 
       <div className="tabs">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             className={`tab ${activeTab === tab.key ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => handleTabChange(tab.key)}
           >
             {tab.label}
           </button>
@@ -206,6 +227,10 @@ export default function AdminPage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {isPaginatedTab && (
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
       )}
     </div>
   );

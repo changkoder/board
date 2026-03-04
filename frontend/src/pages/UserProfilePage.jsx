@@ -2,40 +2,48 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { authApi } from '../api/auth';
+import Pagination from '../components/Pagination';
 
 export default function UserProfilePage() {
   const { userId } = useParams();
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // 프로필 로드 (최초 1회)
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [profileRes, postsRes] = await Promise.all([
-          authApi.getUserProfile(userId),
-          authApi.getUserPosts(userId),
-        ]);
-        setProfile(profileRes.data.data);
-        setPosts(postsRes.data.data);
+    setLoading(true);
+    authApi.getUserProfile(userId)
+      .then((res) => {
+        setProfile(res.data.data);
         setError(null);
-      } catch (err) {
+      })
+      .catch((err) => {
         const status = err.response?.status;
-        if (status === 404) {
-          setError('not_found');
-        } else if (status === 400) {
-          setError('bad_request');
-        } else {
-          setError('server');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+        if (status === 404) setError('not_found');
+        else if (status === 400) setError('bad_request');
+        else setError('server');
+      })
+      .finally(() => setLoading(false));
   }, [userId]);
+
+  // 게시글 로드 (페이지 변경 시)
+  useEffect(() => {
+    if (!profile) return;
+    authApi.getUserPosts(userId, page)
+      .then((res) => {
+        setPosts(res.data.data.content);
+        setTotalPages(res.data.data.totalPages);
+      })
+      .catch(() => {
+        setPosts([]);
+        setTotalPages(0);
+      });
+  }, [userId, page, profile]);
 
   // 내 프로필이면 마이페이지로 이동
   if (user && String(user.id) === String(userId)) {
@@ -114,6 +122,8 @@ export default function UserProfilePage() {
           </tbody>
         </table>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }

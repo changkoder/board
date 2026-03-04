@@ -60,10 +60,10 @@ public class Notification {
     }
 
     public enum NotificationType {
-        COMMENT,       // 내 글에 댓글
-        REPLY,         // 내 댓글에 대댓글
-        POST_LIKE,     // 내 글에 좋아요
-        COMMENT_LIKE,
-        MENTION// 내 댓글에 좋아요
+        COMMENT,        // 내 글에 댓글
+        REPLY,          // 내 댓글에 대댓글
+        POST_LIKE,      // 내 글에 좋아요
+        COMMENT_LIKE,   // 내 댓글에 좋아요
+        MENTION         // 댓글에서 멘션
     }
 }

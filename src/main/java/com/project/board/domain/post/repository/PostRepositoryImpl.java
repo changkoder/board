@@ -162,4 +162,57 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
         return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
     }
+
+    @Override
+    public Page<Post> findByUserIdActive(Long userId, Pageable pageable) {
+        List<Post> content = queryFactory
+                .selectFrom(post)
+                .join(post.category).fetchJoin()
+                .where(
+                        post.user.id.eq(userId),
+                        post.deleted.eq(false),
+                        post.hidden.eq(false)
+                )
+                .orderBy(post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(post.count())
+                .from(post)
+                .where(
+                        post.user.id.eq(userId),
+                        post.deleted.eq(false),
+                        post.hidden.eq(false)
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Page<Post> findHiddenPosts(Pageable pageable) {
+        List<Post> content = queryFactory
+                .selectFrom(post)
+                .join(post.user).fetchJoin()
+                .join(post.category).fetchJoin()
+                .where(
+                        post.hidden.eq(true),
+                        post.deleted.eq(false)
+                )
+                .orderBy(post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(post.count())
+                .from(post)
+                .where(
+                        post.hidden.eq(true),
+                        post.deleted.eq(false)
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
 }

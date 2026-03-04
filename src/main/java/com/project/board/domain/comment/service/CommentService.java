@@ -19,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,15 +40,26 @@ public class CommentService {
 
 
     public List<CommentResponse> findByPostId(Long postId){
-        List<Comment> parents = commentRepository.findParentsByPostId(postId);
+        List<Comment> all = commentRepository.findAllByPostId(postId);
 
+        // 부모 댓글만 필터
+        List<Comment> parents = all.stream()
+                .filter(c -> c.getParent() == null)
+                .toList();
+
+        // 자식 댓글을 parentId 기준으로 그룹핑
+        Map<Long, List<Comment>> childrenMap = all.stream()
+                .filter(c -> c.getParent() != null)
+                .collect(Collectors.groupingBy(c -> c.getParent().getId()));
+
+        // 계층 구조 조립
         return parents.stream()
                 .map(parent -> {
-                    List<Comment> children = commentRepository.findChildrenByParentId(parent.getId());
-                    List<CommentResponse> childResponses = children.stream()
-                            .map(child -> CommentResponse.from(child))
+                    List<CommentResponse> childResponses = childrenMap
+                            .getOrDefault(parent.getId(), List.of())
+                            .stream()
+                            .map(CommentResponse::from)
                             .toList();
-
                     return CommentResponse.from(parent, childResponses);
                 })
                 .toList();

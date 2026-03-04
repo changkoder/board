@@ -1,5 +1,7 @@
 package com.project.board.global.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.board.global.common.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +14,8 @@ import java.io.IOException;
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
@@ -20,6 +24,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
 
-        response.getWriter().write("{\"success\":false,\"data\":null,\"message\":\"인증이 필요합니다.\"}");
+        ApiResponse<Void> body = ApiResponse.error("인증이 필요합니다.");
+        response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }

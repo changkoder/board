@@ -193,12 +193,12 @@ export default function CommentSection({ postId }) {
           {comment.authorProfileImg ? (
             <img src={comment.authorProfileImg} alt="" />
           ) : (
-            <span className="inline-avatar-placeholder">{comment.authorNickname?.charAt(0)}</span>
+            <span className="inline-avatar-placeholder">{comment.authorNickname === '(탈퇴한 사용자)' ? '?' : comment.authorNickname?.charAt(0)}</span>
           )}
         </span>
         <strong
-          className="nickname-link"
-          onClick={() => navigate(`/users/${comment.authorId}`)}
+          className={comment.authorNickname !== '(탈퇴한 사용자)' ? 'nickname-link' : ''}
+          onClick={comment.authorNickname !== '(탈퇴한 사용자)' ? () => navigate(`/users/${comment.authorId}`) : undefined}
         >
           {comment.authorNickname}
         </strong>

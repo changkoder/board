@@ -12,6 +12,8 @@ import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.global.exception.CustomException;
 import com.project.board.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,19 +29,15 @@ public class AdminService {
     private final UserRepository userRepository;
 
     // 숨김 게시글 목록
-    public List<PostListResponse> getHiddenPosts() {
-        List<Post> posts = postRepository.findByHiddenTrueAndDeletedFalse();
-        return posts.stream()
-                .map(PostListResponse::from)
-                .toList();
+    public Page<PostListResponse> getHiddenPosts(Pageable pageable) {
+        return postRepository.findHiddenPosts(pageable)
+                .map(PostListResponse::from);
     }
 
     // 숨김 댓글 목록
-    public List<CommentResponse> getHiddenComments() {
-        List<Comment> comments = commentRepository.findByHiddenTrueAndDeletedFalse();
-        return comments.stream()
-                .map(CommentResponse::from)
-                .toList();
+    public Page<CommentResponse> getHiddenComments(Pageable pageable) {
+        return commentRepository.findHiddenComments(pageable)
+                .map(CommentResponse::from);
     }
 
     // 게시글 숨기기

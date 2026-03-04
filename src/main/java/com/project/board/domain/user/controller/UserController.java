@@ -10,11 +10,11 @@ import com.project.board.domain.user.service.UserService;
 import com.project.board.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -53,30 +53,30 @@ public class UserController {
     }
 
     @GetMapping("/me/posts")
-    public ResponseEntity<ApiResponse<List<PostListResponse>>> getMyPosts(
-            @AuthenticationPrincipal Long userId) {
-        List<PostListResponse> response = userService.getMyPosts(userId);
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> getMyPosts(
+            @AuthenticationPrincipal Long userId, Pageable pageable) {
+        Page<PostListResponse> response = userService.getMyPosts(userId, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/me/comments")
-    public ResponseEntity<ApiResponse<List<CommentResponse>>> getMyComments(
-            @AuthenticationPrincipal Long userId) {
-        List<CommentResponse> response = userService.getMyComments(userId);
+    public ResponseEntity<ApiResponse<Page<CommentResponse>>> getMyComments(
+            @AuthenticationPrincipal Long userId, Pageable pageable) {
+        Page<CommentResponse> response = userService.getMyComments(userId, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/me/likes")
-    public ResponseEntity<ApiResponse<List<PostListResponse>>> getMyLikedPosts(
-            @AuthenticationPrincipal Long userId) {
-        List<PostListResponse> response = userService.getMyLikedPosts(userId);
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> getMyLikedPosts(
+            @AuthenticationPrincipal Long userId, Pageable pageable) {
+        Page<PostListResponse> response = userService.getMyLikedPosts(userId, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/me/bookmarks")
-    public ResponseEntity<ApiResponse<List<PostListResponse>>> getMyBookmarkedPosts(
-            @AuthenticationPrincipal Long userId) {
-        List<PostListResponse> response = userService.getMyBookmarkedPosts(userId);
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> getMyBookmarkedPosts(
+            @AuthenticationPrincipal Long userId, Pageable pageable) {
+        Page<PostListResponse> response = userService.getMyBookmarkedPosts(userId, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -93,8 +93,9 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/posts")
-    public ResponseEntity<ApiResponse<List<PostListResponse>>> getUserPosts(@PathVariable Long userId) {
-        List<PostListResponse> response = userService.getUserPosts(userId);
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> getUserPosts(
+            @PathVariable Long userId, Pageable pageable) {
+        Page<PostListResponse> response = userService.getUserPosts(userId, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

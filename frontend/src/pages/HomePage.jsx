@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { postApi } from '../api/posts';
 import { useAuth } from '../contexts/AuthContext';
+import Pagination from '../components/Pagination';
 
 const SEARCH_TYPES = [
   { value: 'TITLE', label: '제목' },
@@ -106,22 +107,6 @@ export default function HomePage() {
     setActiveSearchType('');
     setIsSearching(false);
     setPage(0);
-  };
-
-  // 페이지 번호 생성 (최대 5개)
-  const getPageNumbers = () => {
-    const maxVisible = 5;
-    let start = Math.max(0, page - Math.floor(maxVisible / 2));
-    let end = start + maxVisible;
-    if (end > totalPages) {
-      end = totalPages;
-      start = Math.max(0, end - maxVisible);
-    }
-    const pages = [];
-    for (let i = start; i < end; i++) {
-      pages.push(i);
-    }
-    return pages;
   };
 
   return (
@@ -238,12 +223,15 @@ export default function HomePage() {
                       </Link>
                     </td>
                     <td>
-                      <span className="author-cell nickname-link" onClick={() => navigate(`/users/${post.authorId}`)}>
+                      <span
+                        className={`author-cell${post.authorNickname !== '(탈퇴한 사용자)' ? ' nickname-link' : ''}`}
+                        onClick={post.authorNickname !== '(탈퇴한 사용자)' ? () => navigate(`/users/${post.authorId}`) : undefined}
+                      >
                         <span className="inline-avatar">
                           {post.authorProfileImg ? (
                             <img src={post.authorProfileImg} alt="" />
                           ) : (
-                            <span className="inline-avatar-placeholder">{post.authorNickname?.charAt(0)}</span>
+                            <span className="inline-avatar-placeholder">{post.authorNickname === '(탈퇴한 사용자)' ? '?' : post.authorNickname?.charAt(0)}</span>
                           )}
                         </span>
                         {post.authorNickname}
@@ -267,12 +255,15 @@ export default function HomePage() {
                       </Link>
                     </td>
                     <td>
-                      <span className="author-cell nickname-link" onClick={() => navigate(`/users/${post.authorId}`)}>
+                      <span
+                        className={`author-cell${post.authorNickname !== '(탈퇴한 사용자)' ? ' nickname-link' : ''}`}
+                        onClick={post.authorNickname !== '(탈퇴한 사용자)' ? () => navigate(`/users/${post.authorId}`) : undefined}
+                      >
                         <span className="inline-avatar">
                           {post.authorProfileImg ? (
                             <img src={post.authorProfileImg} alt="" />
                           ) : (
-                            <span className="inline-avatar-placeholder">{post.authorNickname?.charAt(0)}</span>
+                            <span className="inline-avatar-placeholder">{post.authorNickname === '(탈퇴한 사용자)' ? '?' : post.authorNickname?.charAt(0)}</span>
                           )}
                         </span>
                         {post.authorNickname}
@@ -290,31 +281,7 @@ export default function HomePage() {
       )}
 
       <div className="list-footer">
-        {totalPages > 1 && (
-          <div className="pagination">
-            <button onClick={() => setPage(0)} disabled={page === 0}>
-              &laquo;
-            </button>
-            <button onClick={() => setPage(page - 1)} disabled={page === 0}>
-              &lsaquo;
-            </button>
-            {getPageNumbers().map((p) => (
-              <button
-                key={p}
-                onClick={() => setPage(p)}
-                className={page === p ? 'page-active' : ''}
-              >
-                {p + 1}
-              </button>
-            ))}
-            <button onClick={() => setPage(page + 1)} disabled={page >= totalPages - 1}>
-              &rsaquo;
-            </button>
-            <button onClick={() => setPage(totalPages - 1)} disabled={page >= totalPages - 1}>
-              &raquo;
-            </button>
-          </div>
-        )}
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         {isAuthenticated && (
           <Link to="/posts/new" className="btn btn-primary">글쓰기</Link>
         )}

@@ -22,13 +22,16 @@ public class PostListResponse {
     private LocalDateTime createdAt;
 
     public static PostListResponse from(Post post) {
+        String nickname = post.getUser().isDeleted() ? "(탈퇴한 사용자)" : post.getUser().getNickname();
+        String profileImg = post.getUser().isDeleted() ? null : post.getUser().getProfileImg();
+
         return PostListResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .categoryName(post.getCategory().getName())
                 .authorId(post.getUser().getId())
-                .authorNickname(post.getUser().getNickname())
-                .authorProfileImg(post.getUser().getProfileImg())
+                .authorNickname(nickname)
+                .authorProfileImg(profileImg)
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())

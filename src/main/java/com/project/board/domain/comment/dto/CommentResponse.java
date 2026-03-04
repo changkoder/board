@@ -22,31 +22,20 @@ public class CommentResponse {
     private Long postId;
     private String postTitle;
 
-    //대댓글용(자식 없음)
     public static CommentResponse from(Comment comment) {
-        return CommentResponse.builder()
-                .id(comment.getId())
-                .content(comment.getContent())
-                .authorId(comment.getUser().getId())
-                .authorNickname(comment.getUser().getNickname())
-                .authorProfileImg(comment.getUser().getProfileImg())
-                .likeCount(comment.getLikeCount())
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
-                .postId(comment.getPost().getId())
-                .postTitle(comment.getPost().getTitle())
-                .children(null)
-                .build();
+        return from(comment, null);
     }
 
-    //부모댓글용
     public static CommentResponse from(Comment comment, List<CommentResponse> children) {
+        String nickname = comment.getUser().isDeleted() ? "(탈퇴한 사용자)" : comment.getUser().getNickname();
+        String profileImg = comment.getUser().isDeleted() ? null : comment.getUser().getProfileImg();
+
         return CommentResponse.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
                 .authorId(comment.getUser().getId())
-                .authorNickname(comment.getUser().getNickname())
-                .authorProfileImg(comment.getUser().getProfileImg())
+                .authorNickname(nickname)
+                .authorProfileImg(profileImg)
                 .likeCount(comment.getLikeCount())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())

@@ -18,5 +18,9 @@ public interface PostRepositoryCustom {
     Page<Post> findAllActive(Pageable pageable);
 
     Page<Post> findByCategoryActive(Long categoryId, Pageable pageable);
+
+    Page<Post> findByUserIdActive(Long userId, Pageable pageable);
+
+    Page<Post> findHiddenPosts(Pageable pageable);
 }
 

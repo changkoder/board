@@ -1,14 +1,10 @@
 package com.project.board.domain.user.service;
 
-import com.project.board.domain.bookmark.entity.Bookmark;
 import com.project.board.domain.bookmark.repository.BookmarkRepository;
 import com.project.board.domain.comment.dto.CommentResponse;
-import com.project.board.domain.comment.entity.Comment;
 import com.project.board.domain.comment.repository.CommentRepository;
-import com.project.board.domain.like.entity.PostLike;
 import com.project.board.domain.like.repository.PostLikeRepository;
 import com.project.board.domain.post.dto.PostListResponse;
-import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.dto.PasswordChangeRequest;
 import com.project.board.domain.user.dto.UserProfileResponse;
@@ -19,11 +15,11 @@ import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.global.exception.CustomException;
 import com.project.board.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -87,37 +83,33 @@ public class UserService {
         user.delete();
     }
 
-    public List<PostListResponse> getMyPosts(Long userId) {
-        List<Post> posts = postRepository.findByUserId(userId);
-        return posts.stream()
-                .map(PostListResponse::from)
-                .toList();
+    public Page<PostListResponse> getMyPosts(Long userId, Pageable pageable) {
+        return postRepository.findByUserIdActive(userId, pageable)
+                .map(PostListResponse::from);
     }
 
-    public List<CommentResponse> getMyComments(Long userId) {
-        List<Comment> comments = commentRepository.findByUserId(userId);
-        return comments.stream()
-                .map(CommentResponse::from)
-                .toList();
+    public Page<CommentResponse> getMyComments(Long userId, Pageable pageable) {
+        return commentRepository.findByUserIdActive(userId, pageable)
+                .map(CommentResponse::from);
     }
 
-    public List<PostListResponse> getMyLikedPosts(Long userId) {
-        List<PostLike> likes = postLikeRepository.findByUserIdWithPost(userId);
-        return likes.stream()
-                .map(like -> PostListResponse.from(like.getPost()))
-                .toList();
+    public Page<PostListResponse> getMyLikedPosts(Long userId, Pageable pageable) {
+        return postLikeRepository.findByUserIdWithPost(userId, pageable)
+                .map(like -> PostListResponse.from(like.getPost()));
     }
 
-    public List<PostListResponse> getMyBookmarkedPosts(Long userId) {
-        List<Bookmark> bookmarks = bookmarkRepository.findByUserIdWithPost(userId);
-        return bookmarks.stream()
-                .map(bookmark -> PostListResponse.from(bookmark.getPost()))
-                .toList();
+    public Page<PostListResponse> getMyBookmarkedPosts(Long userId, Pageable pageable) {
+        return bookmarkRepository.findByUserIdWithPost(userId, pageable)
+                .map(bookmark -> PostListResponse.from(bookmark.getPost()));
     }
 
     public UserProfileResponse getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
 
         return new UserProfileResponse(user);
     }
@@ -125,13 +117,23 @@ public class UserService {
     public UserResponse getUserProfileByNickname(String nickname) {
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
         return new UserResponse(user);
     }
 
-    public List<PostListResponse> getUserPosts(Long userId) {
-        List<Post> posts = postRepository.findByUserId(userId);
-        return posts.stream()
-                .map(PostListResponse::from)
-                .toList();
+    public Page<PostListResponse> getUserPosts(Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return postRepository.findByUserIdActive(userId, pageable)
+                .map(PostListResponse::from);
     }
 }

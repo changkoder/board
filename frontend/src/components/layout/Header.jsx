@@ -41,7 +41,7 @@ export default function Header() {
               </Link>
               {user.role === 'ADMIN' && (
                 <Link to="/admin" className="nav-link">
-                  관리자
+                  관리자페이지
                 </Link>
               )}
               <button onClick={handleLogout} className="nav-link btn-link">

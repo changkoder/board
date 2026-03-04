@@ -147,14 +147,14 @@ export default function PostDetailPage() {
           <h1>{post.title}</h1>
           <div className="post-meta">
             <span
-              className="author-cell nickname-link"
-              onClick={() => navigate(`/users/${post.authorId}`)}
+              className={`author-cell${post.authorNickname !== '(탈퇴한 사용자)' ? ' nickname-link' : ''}`}
+              onClick={post.authorNickname !== '(탈퇴한 사용자)' ? () => navigate(`/users/${post.authorId}`) : undefined}
             >
               <span className="inline-avatar">
                 {post.authorProfileImg ? (
                   <img src={post.authorProfileImg} alt="" />
                 ) : (
-                  <span className="inline-avatar-placeholder">{post.authorNickname?.charAt(0)}</span>
+                  <span className="inline-avatar-placeholder">{post.authorNickname === '(탈퇴한 사용자)' ? '?' : post.authorNickname?.charAt(0)}</span>
                 )}
               </span>
               {post.authorNickname}

@@ -1,15 +1,13 @@
 package com.project.board.domain.like.repository;
 
 import com.project.board.domain.like.entity.PostLike;
-import com.project.board.domain.post.entity.PostImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
+public interface PostLikeRepository extends JpaRepository<PostLike, Long>, PostLikeRepositoryCustom {
 
     @Query("SELECT pl FROM PostLike pl " +
             "WHERE pl.user.id = :userId " +
@@ -21,8 +19,4 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
             "WHERE pl.user.id = :userId " +
             "AND pl.post.id = :postId")
     boolean existsByUserAndPost(@Param("userId") Long userId, @Param("postId") Long postId);
-
-    // 마이페이지 - 좋아요한 글
-    @Query("SELECT pl FROM PostLike pl JOIN FETCH pl.post JOIN FETCH pl.post.user JOIN FETCH pl.post.category WHERE pl.user.id = :userId AND pl.post.deleted = false ORDER BY pl.createdAt DESC")
-    List<PostLike> findByUserIdWithPost(@Param("userId") Long userId);
 }

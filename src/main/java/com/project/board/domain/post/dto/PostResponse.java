@@ -28,36 +28,21 @@ public class PostResponse {
     private boolean liked;
 
     public static PostResponse from(Post post){
-        return PostResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .categoryName(post.getCategory().getName())
-                .authorId(post.getUser().getId())
-                .authorNickname(post.getUser().getNickname())
-                .authorProfileImg(post.getUser().getProfileImg())
-                .viewCount(post.getViewCount())
-                .likeCount(post.getLikeCount())
-                .commentCount(post.getCommentCount())
-                .imageUrls(post.getImages().stream()
-                        .map(image -> image.getImageUrl())
-                        .toList())
-                .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
-                .bookmarked(false)
-                .liked(false)
-                .build();
+        return from(post, false, false);
     }
 
     public static PostResponse from(Post post, boolean bookmarked, boolean liked){
+        String nickname = post.getUser().isDeleted() ? "(탈퇴한 사용자)" : post.getUser().getNickname();
+        String profileImg = post.getUser().isDeleted() ? null : post.getUser().getProfileImg();
+
         return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .categoryName(post.getCategory().getName())
                 .authorId(post.getUser().getId())
-                .authorNickname(post.getUser().getNickname())
-                .authorProfileImg(post.getUser().getProfileImg())
+                .authorNickname(nickname)
+                .authorProfileImg(profileImg)
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())

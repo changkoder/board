@@ -48,17 +48,13 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
 
-        // ============================================================
         // 카테고리
-        // ============================================================
         Category notice = categoryRepository.save(new Category("공지"));
         Category free = categoryRepository.save(new Category("자유"));
         Category question = categoryRepository.save(new Category("질문"));
         Category info = categoryRepository.save(new Category("정보공유"));
 
-        // ============================================================
         // 유저 (6명)
-        // ============================================================
         User admin = userRepository.save(User.builder()
                 .email("admin@test.com")
                 .password(passwordEncoder.encode("admin1234"))
@@ -96,9 +92,7 @@ public class DataInitializer implements CommandLineRunner {
                 .nickname("취준생김철수")
                 .build());
 
-        // ============================================================
         // 공지글
-        // ============================================================
         Post noticePost1 = postRepository.save(Post.builder()
                 .user(admin).category(notice)
                 .title("[필독] 게시판 이용규칙 안내")
@@ -111,9 +105,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("서버 점검이 예정되어 있습니다.\n\n일시: 2025년 2월 25일 새벽 2시 ~ 6시\n내용: DB 마이그레이션 및 성능 개선\n\n해당 시간 동안 서비스 이용이 불가합니다.\n양해 부탁드립니다.")
                 .build());
 
-        // ============================================================
         // 자유 게시판
-        // ============================================================
         Post p1 = postRepository.save(Post.builder()
                 .user(user1).category(free)
                 .title("개발 시작한 지 한 달 됐습니다")
@@ -156,9 +148,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("SI 프로젝트 마감이 다음 주인데 버그가 계속 나와요\n고객사에서 요구사항도 계속 바꾸고...\n이게 개발자 현실인가요?")
                 .build());
 
-        // ============================================================
         // 질문 게시판
-        // ============================================================
         Post p8 = postRepository.save(Post.builder()
                 .user(user1).category(question)
                 .title("Spring Boot에서 JPA N+1 문제 어떻게 해결하나요?")
@@ -189,9 +179,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("레이아웃 잡을 때 flexbox랑 grid 중에 뭘 써야 할지 모르겠어요\n둘 다 배웠는데 실전에서 어떤 기준으로 선택하시나요?")
                 .build());
 
-        // ============================================================
         // 정보공유 게시판
-        // ============================================================
         Post p13 = postRepository.save(Post.builder()
                 .user(user2).category(info)
                 .title("[정리] 주니어 개발자 면접 단골 질문 TOP 10")
@@ -240,9 +228,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("게시판은 너무 흔하다고 해서 다른 주제를 찾고 있어요\n쇼핑몰? 채팅앱? 뭐가 좋을까요?\n면접관이 관심 가질 만한 주제 추천 부탁드립니다!")
                 .build());
 
-        // ============================================================
         // 댓글 (멘션 포함, 활발한 토론)
-        // ============================================================
 
         // p3: 자바 vs 파이썬 논쟁
         Comment c1 = commentRepository.save(Comment.builder()
@@ -455,9 +441,7 @@ public class DataInitializer implements CommandLineRunner {
 
         postRepository.flush();
 
-        // ============================================================
         // 조회수 (ViewLog + viewCount 직접 반영)
-        // ============================================================
         // 인기 글들에 조회수 부여
         addView(user1, p13); addView(user2, p13); addView(user3, p13); addView(user4, p13); addView(user5, p13); // 면접질문 5
         addView(user1, p3); addView(user2, p3); addView(user4, p3); addView(user5, p3); // 자바vs파이썬 4
@@ -479,9 +463,7 @@ public class DataInitializer implements CommandLineRunner {
         addView(user2, p12); addView(user4, p12); // CSS질문 2
         addView(user1, p10); addView(user3, p10); // Git질문 2
 
-        // ============================================================
         // 게시글 좋아요 (PostLike + likeCount 반영)
-        // ============================================================
         // 면접질문 - 정보글이라 좋아요 많음
         addPostLike(user1, p13); addPostLike(user3, p13); addPostLike(user4, p13); addPostLike(user5, p13);
         // 무료 강의 - 유용한 정보
@@ -511,9 +493,7 @@ public class DataInitializer implements CommandLineRunner {
         // 음악
         addPostLike(user3, p19);
 
-        // ============================================================
         // 댓글 좋아요 (CommentLike + likeCount 반영)
-        // ============================================================
         // 도움 되는 답변들에 좋아요
         addCommentLike(user1, c5);  // fetch join 답변
         addCommentLike(user4, c5);
@@ -530,9 +510,7 @@ public class DataInitializer implements CommandLineRunner {
         addCommentLike(user2, c5r1);  // BatchSize 팁
         addCommentLike(user1, c16_1); // README 중요
 
-        // ============================================================
         // 북마크 (자주 참고할 만한 글 저장)
-        // ============================================================
         // user1(개발초보) - 공부자료 북마크
         bookmarkRepository.save(new Bookmark(user1, p13)); // 면접질문
         bookmarkRepository.save(new Bookmark(user1, p14)); // 무료강의
@@ -559,9 +537,7 @@ public class DataInitializer implements CommandLineRunner {
         bookmarkRepository.save(new Bookmark(user5, p14)); // 무료강의
         bookmarkRepository.save(new Bookmark(user5, p5));  // 취업현타 공감
 
-        // ============================================================
         // 알림 (다양한 타입)
-        // ============================================================
 
         // COMMENT 알림 - 내 글에 댓글 달림
         notificationRepository.save(Notification.builder()
@@ -751,9 +727,7 @@ public class DataInitializer implements CommandLineRunner {
         // 일부 알림은 이미 읽은 상태로 (자연스러움)
         // → 서비스 로직 없이 직접 read() 호출 불가하므로 기본 unread 유지
 
-        // ============================================================
         // 신고 (소수의 부적절한 댓글 신고)
-        // ============================================================
         // 자바vs파이썬 논쟁에서 과열된 댓글 신고
         reportRepository.save(Report.builder()
                 .user(user3).comment(c1).reason(Report.ReportReason.ABUSE)
@@ -764,9 +738,7 @@ public class DataInitializer implements CommandLineRunner {
                 .build());
     }
 
-    // ============================================================
     // 헬퍼 메서드
-    // ============================================================
     private void addView(User user, Post post) {
         viewLogRepository.save(new ViewLog(user, post));
         post.increaseViewCount();

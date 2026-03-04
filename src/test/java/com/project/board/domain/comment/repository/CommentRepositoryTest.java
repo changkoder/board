@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -57,14 +56,27 @@ class CommentRepositoryTest {
     }
 
     @Test
-    @DisplayName("부모 댓글 조회시 User fetch join으로 N+1 방지")
-    void findParentsByPostId_fetchJoinUser_noNPlusOne(){
+    @DisplayName("전체 댓글 조회시 User fetch join으로 N+1 방지")
+    void findAllByPostId_fetchJoinUser_noNPlusOne(){
         // given
-        for (int i = 0; i < 5; i++) {
+        Comment parent1 = commentRepository.save(Comment.builder()
+                .post(post)
+                .user(user)
+                .content("부모 댓글 1")
+                .build());
+
+        Comment parent2 = commentRepository.save(Comment.builder()
+                .post(post)
+                .user(user)
+                .content("부모 댓글 2")
+                .build());
+
+        for (int i = 0; i < 3; i++) {
             commentRepository.save(Comment.builder()
                     .post(post)
                     .user(user)
-                    .content("부모 댓글 " + i)
+                    .content("자식 댓글 " + i)
+                    .parent(parent1)
                     .build());
         }
 
@@ -72,16 +84,16 @@ class CommentRepositoryTest {
         em.clear();
 
         // when
-        List<Comment> parents = commentRepository.findParentsByPostId(post.getId());
+        List<Comment> all = commentRepository.findAllByPostId(post.getId());
 
         // then
-        assertThat(parents).hasSize(5);
-        parents.forEach(c -> assertThat(c.getUser().getNickname()).isEqualTo("tester"));
+        assertThat(all).hasSize(5); // 부모 2 + 자식 3
+        all.forEach(c -> assertThat(c.getUser().getNickname()).isEqualTo("tester"));
     }
 
     @Test
-    @DisplayName("자식 댓글 조회 시 User fetch join으로 N+1 방지")
-    void findChildrenByParentId_fetchJoinUser_noNPlusOne() {
+    @DisplayName("부모 댓글이 자식 댓글보다 먼저 정렬됨")
+    void findAllByPostId_parentBeforeChildren() {
         // given
         Comment parent = commentRepository.save(Comment.builder()
                 .post(post)
@@ -89,31 +101,30 @@ class CommentRepositoryTest {
                 .content("부모 댓글")
                 .build());
 
-        for (int i = 0; i < 5; i++) {
-            commentRepository.save(Comment.builder()
-                    .post(post)
-                    .user(user)
-                    .content("자식 댓글 " + i)
-                    .parent(parent)
-                    .build());
-        }
+        commentRepository.save(Comment.builder()
+                .post(post)
+                .user(user)
+                .content("자식 댓글")
+                .parent(parent)
+                .build());
 
         em.flush();
         em.clear();
 
         // when
-        List<Comment> children = commentRepository.findChildrenByParentId(parent.getId());
+        List<Comment> all = commentRepository.findAllByPostId(post.getId());
 
         // then
-        assertThat(children).hasSize(5);
-        children.forEach(c -> assertThat(c.getUser().getNickname()).isEqualTo("tester"));
+        assertThat(all).hasSize(2);
+        assertThat(all.get(0).getParent()).isNull(); // 부모가 먼저
+        assertThat(all.get(1).getParent()).isNotNull(); // 자식이 나중
     }
 
     @Test
     @DisplayName("삭제된 댓글은 조회되지 않음")
-    void findParentsByPostId_excludesDeleted() {
+    void findAllByPostId_excludesDeleted() {
         // given
-        Comment normal = commentRepository.save(Comment.builder()
+        commentRepository.save(Comment.builder()
                 .post(post)
                 .user(user)
                 .content("일반 댓글")
@@ -130,7 +141,7 @@ class CommentRepositoryTest {
         em.clear();
 
         // when
-        List<Comment> comments = commentRepository.findParentsByPostId(post.getId());
+        List<Comment> comments = commentRepository.findAllByPostId(post.getId());
 
         // then
         assertThat(comments).hasSize(1);

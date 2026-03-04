@@ -33,20 +33,20 @@ export const authApi = {
     return client.delete('/users/me');
   },
 
-  getMyPosts() {
-    return client.get('/users/me/posts');
+  getMyPosts(page = 0, size = 10) {
+    return client.get('/users/me/posts', { params: { page, size } });
   },
 
-  getMyComments() {
-    return client.get('/users/me/comments');
+  getMyComments(page = 0, size = 10) {
+    return client.get('/users/me/comments', { params: { page, size } });
   },
 
-  getMyLikes() {
-    return client.get('/users/me/likes');
+  getMyLikes(page = 0, size = 10) {
+    return client.get('/users/me/likes', { params: { page, size } });
   },
 
-  getMyBookmarks() {
-    return client.get('/users/me/bookmarks');
+  getMyBookmarks(page = 0, size = 10) {
+    return client.get('/users/me/bookmarks', { params: { page, size } });
   },
 
   getUserByNickname(nickname) {
@@ -57,7 +57,7 @@ export const authApi = {
     return client.get(`/users/${userId}`);
   },
 
-  getUserPosts(userId) {
-    return client.get(`/users/${userId}/posts`);
+  getUserPosts(userId, page = 0, size = 10) {
+    return client.get(`/users/${userId}/posts`, { params: { page, size } });
   },
 };

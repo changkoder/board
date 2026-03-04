@@ -1,12 +1,12 @@
 import client from './client';
 
 export const adminApi = {
-  getHiddenPosts() {
-    return client.get('/admin/posts/hidden');
+  getHiddenPosts(page = 0, size = 10) {
+    return client.get('/admin/posts/hidden', { params: { page, size } });
   },
 
-  getHiddenComments() {
-    return client.get('/admin/comments/hidden');
+  getHiddenComments(page = 0, size = 10) {
+    return client.get('/admin/comments/hidden', { params: { page, size } });
   },
 
   hidePost(postId) {

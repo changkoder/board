@@ -6,6 +6,8 @@ import com.project.board.domain.post.dto.PostListResponse;
 import com.project.board.domain.user.dto.UserResponse;
 import com.project.board.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,14 +21,14 @@ public class AdminController {
     private final AdminService adminService;
 
     @GetMapping("/posts/hidden")
-    public ResponseEntity<ApiResponse<List<PostListResponse>>> getHiddenPosts() {
-        List<PostListResponse> response = adminService.getHiddenPosts();
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> getHiddenPosts(Pageable pageable) {
+        Page<PostListResponse> response = adminService.getHiddenPosts(pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @GetMapping("/comments/hidden")
-    public ResponseEntity<ApiResponse<List<CommentResponse>>> getHiddenComments() {
-        List<CommentResponse> response = adminService.getHiddenComments();
+    public ResponseEntity<ApiResponse<Page<CommentResponse>>> getHiddenComments(Pageable pageable) {
+        Page<CommentResponse> response = adminService.getHiddenComments(pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

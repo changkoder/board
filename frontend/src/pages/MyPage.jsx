@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { authApi } from '../api/auth';
 import { imageApi } from '../api/images';
+import Pagination from '../components/Pagination';
 
 const TABS = [
   { key: 'posts', label: '내가 쓴 글' },
@@ -19,6 +20,8 @@ export default function MyPage() {
   const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState('posts');
   const [data, setData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -35,19 +38,21 @@ export default function MyPage() {
     setLoading(true);
 
     const fetcher = {
-      posts: authApi.getMyPosts,
-      comments: authApi.getMyComments,
-      likes: authApi.getMyLikes,
-      bookmarks: authApi.getMyBookmarks,
+      posts: () => authApi.getMyPosts(page),
+      comments: () => authApi.getMyComments(page),
+      likes: () => authApi.getMyLikes(page),
+      bookmarks: () => authApi.getMyBookmarks(page),
     };
 
     fetcher[activeTab]()
       .then((res) => {
-        setData(res.data.data);
+        setData(res.data.data.content);
+        setTotalPages(res.data.data.totalPages);
         setError(false);
       })
       .catch(() => {
         setData([]);
+        setTotalPages(0);
         setError(true);
       })
       .finally(() => setLoading(false));
@@ -55,7 +60,12 @@ export default function MyPage() {
 
   useEffect(() => {
     fetchTabData();
-  }, [activeTab]);
+  }, [activeTab, page]);
+
+  const handleTabChange = (tabKey) => {
+    setActiveTab(tabKey);
+    setPage(0);
+  };
 
   const handleUpdateNickname = async () => {
     try {
@@ -226,7 +236,7 @@ export default function MyPage() {
           <button
             key={tab.key}
             className={`tab ${activeTab === tab.key ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => handleTabChange(tab.key)}
           >
             {tab.label}
           </button>
@@ -286,6 +296,8 @@ export default function MyPage() {
           </table>
         )}
       </div>
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }
