@@ -48,7 +48,8 @@
       "Bash(__NEW_LINE_44e96f6671d1d160__ echo \"\")",
       "Bash(__NEW_LINE_c00c273d5f2c8b00__ echo \"=== test2\\(코딩마스터\\) notifications ===\")",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d[''data''][''accessToken'']\\); print\\(d[''data''][''refreshToken'']\\)\")",
-      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d[''data''], indent=2, ensure_ascii=False\\)\\)\")"
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d[''data''], indent=2, ensure_ascii=False\\)\\)\")",
+      "Bash(export CLAUDE_CODE_MAX_OUTPUT_TOKENS=100000)"
     ]
   }
 }
