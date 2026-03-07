@@ -118,7 +118,7 @@ public class PostService {
 
     //비로그인 유저용
     public PostResponse findById(Long postId){
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findByIdWithDetails(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if(post.isDeleted()){
@@ -133,7 +133,7 @@ public class PostService {
 
     @Transactional //로그인 유저용
     public PostResponse findById(Long postId, Long userId){
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findByIdWithDetails(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if(post.isDeleted()){
