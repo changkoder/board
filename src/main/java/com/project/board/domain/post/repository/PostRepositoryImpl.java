@@ -13,6 +13,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.board.domain.post.entity.QPost.*;
 
@@ -167,6 +168,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
     public Page<Post> findByUserIdActive(Long userId, Pageable pageable) {
         List<Post> content = queryFactory
                 .selectFrom(post)
+                .join(post.user).fetchJoin()
                 .join(post.category).fetchJoin()
                 .where(
                         post.user.id.eq(userId),
@@ -214,5 +216,33 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public List<Post> findNotices() {
+        return queryFactory
+                .selectFrom(post)
+                .join(post.user).fetchJoin()
+                .join(post.category).fetchJoin()
+                .where(
+                        post.category.name.eq("공지"),
+                        post.deleted.eq(false),
+                        post.hidden.eq(false)
+                )
+                .orderBy(post.createdAt.desc())
+                .fetch();
+    }
+
+    @Override
+    public Optional<Post> findByIdWithDetails(Long id) {
+        Post result = queryFactory
+                .selectFrom(post)
+                .join(post.user).fetchJoin()
+                .join(post.category).fetchJoin()
+                .leftJoin(post.images).fetchJoin()
+                .where(post.id.eq(id))
+                .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 }

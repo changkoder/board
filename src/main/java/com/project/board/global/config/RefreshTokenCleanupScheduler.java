@@ -19,7 +19,7 @@ public class RefreshTokenCleanupScheduler {
     @Scheduled(cron = "0 0 3 * * *")
     @Transactional
     public void cleanupExpiredTokens(){
-        int deletedCount = refreshTokenRepository.deleteExpiredTokens(LocalDateTime.now());
+        long deletedCount = refreshTokenRepository.deleteExpiredTokens(LocalDateTime.now());
         log.info("만료된 RefreshToken {}개 삭제 완료", deletedCount);
     }
 }

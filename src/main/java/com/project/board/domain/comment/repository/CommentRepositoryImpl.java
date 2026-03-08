@@ -1,6 +1,9 @@
 package com.project.board.domain.comment.repository;
 
 import com.project.board.domain.comment.entity.Comment;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     public Page<Comment> findByUserIdActive(Long userId, Pageable pageable) {
         List<Comment> content = queryFactory
                 .selectFrom(comment)
+                .join(comment.user).fetchJoin()
                 .join(comment.post).fetchJoin()
                 .where(
                         comment.user.id.eq(userId),
@@ -68,5 +72,28 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public List<Comment> findAllByPostId(Long postId) {
+        // 부모 댓글이면 자기 id, 대댓글이면 부모 id 기준으로 그룹핑 정렬
+        NumberExpression<Long> groupId = new CaseBuilder()
+                .when(comment.parent.isNull()).then(comment.id)
+                .otherwise(comment.parent.id);
+
+        return queryFactory
+                .selectFrom(comment)
+                .join(comment.user).fetchJoin()
+                .where(
+                        comment.post.id.eq(postId),
+                        comment.deleted.eq(false),
+                        comment.hidden.eq(false)
+                )
+                .orderBy(
+                        groupId.asc(),
+                        comment.parent.id.asc().nullsFirst(),
+                        comment.createdAt.asc()
+                )
+                .fetch();
     }
 }

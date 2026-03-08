@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.board.domain.bookmark.entity.QBookmark.bookmark;
 
@@ -44,5 +45,32 @@ public class BookmarkRepositoryImpl implements BookmarkRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Optional<Bookmark> findByUserAndPost(Long userId, Long postId) {
+        Bookmark result = queryFactory
+                .selectFrom(bookmark)
+                .where(
+                        bookmark.user.id.eq(userId),
+                        bookmark.post.id.eq(postId)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
+    @Override
+    public boolean existsByUserAndPost(Long userId, Long postId) {
+        Integer result = queryFactory
+                .selectOne()
+                .from(bookmark)
+                .where(
+                        bookmark.user.id.eq(userId),
+                        bookmark.post.id.eq(postId)
+                )
+                .fetchFirst();
+
+        return result != null;
     }
 }

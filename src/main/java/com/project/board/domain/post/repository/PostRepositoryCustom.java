@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PostRepositoryCustom {
 
@@ -22,5 +23,9 @@ public interface PostRepositoryCustom {
     Page<Post> findByUserIdActive(Long userId, Pageable pageable);
 
     Page<Post> findHiddenPosts(Pageable pageable);
+
+    List<Post> findNotices();
+
+    Optional<Post> findByIdWithDetails(Long id);
 }
 

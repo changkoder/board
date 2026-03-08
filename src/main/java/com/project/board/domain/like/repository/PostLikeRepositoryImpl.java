@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.board.domain.like.entity.QPostLike.postLike;
 
@@ -44,5 +45,32 @@ public class PostLikeRepositoryImpl implements PostLikeRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Optional<PostLike> findByUserAndPost(Long userId, Long postId) {
+        PostLike result = queryFactory
+                .selectFrom(postLike)
+                .where(
+                        postLike.user.id.eq(userId),
+                        postLike.post.id.eq(postId)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
+    @Override
+    public boolean existsByUserAndPost(Long userId, Long postId) {
+        Integer result = queryFactory
+                .selectOne()
+                .from(postLike)
+                .where(
+                        postLike.user.id.eq(userId),
+                        postLike.post.id.eq(postId)
+                )
+                .fetchFirst();
+
+        return result != null;
     }
 }
