@@ -79,10 +79,10 @@ public class LikeService {
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         if(comment.isDeleted()){
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
         }
         if(comment.isHidden()){
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
         }
 
         Optional<CommentLike> existingLike = commentLikeRepository.findByUserAndComment(userId, commentId);
