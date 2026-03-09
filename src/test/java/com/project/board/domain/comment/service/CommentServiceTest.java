@@ -163,6 +163,53 @@ class CommentServiceTest {
                 .isInstanceOf(CustomException.class);
     }
 
+    @Test
+    @DisplayName("댓글 수정 성공")
+    void update_success() {
+        // given
+        CommentCreateRequest request = createCommentRequest("원본 댓글", null);
+        CommentResponse comment = commentService.create(post.getId(), user.getId(), request);
+
+        CommentUpdateRequest updateRequest = new CommentUpdateRequest();
+        ReflectionTestUtils.setField(updateRequest, "content", "수정된 댓글");
+
+        // when
+        CommentResponse response = commentService.update(comment.getId(), user.getId(), updateRequest);
+
+        // then
+        assertThat(response.getContent()).isEqualTo("수정된 댓글");
+    }
+
+    @Test
+    @DisplayName("게시글의 댓글 목록 조회")
+    void findByPostId_success() {
+        // given
+        commentService.create(post.getId(), user.getId(), createCommentRequest("댓글1", null));
+        commentService.create(post.getId(), user.getId(), createCommentRequest("댓글2", null));
+        commentService.create(post.getId(), user.getId(), createCommentRequest("댓글3", null));
+
+        // when
+        var result = commentService.findByPostId(post.getId());
+
+        // then
+        assertThat(result).hasSize(3);
+    }
+
+    @Test
+    @DisplayName("삭제된 댓글은 soft delete")
+    void delete_softDelete() {
+        // given
+        CommentCreateRequest request = createCommentRequest("삭제할 댓글", null);
+        CommentResponse comment = commentService.create(post.getId(), user.getId(), request);
+
+        // when
+        commentService.delete(comment.getId(), user.getId());
+
+        // then
+        Comment deleted = commentRepository.findById(comment.getId()).orElseThrow();
+        assertThat(deleted.isDeleted()).isTrue();
+    }
+
     private CommentCreateRequest createCommentRequest(String content, Long parentId) {
         CommentCreateRequest request = new CommentCreateRequest();
         ReflectionTestUtils.setField(request, "content", content);

@@ -227,4 +227,114 @@ class PostRepositoryTest {
         assertThat(secondPage.getContent()).hasSize(5);
         assertThat(firstPage.getTotalElements()).isEqualTo(15);
     }
+
+    @Test
+    @DisplayName("카테고리별 게시글 조회")
+    void findByCategoryActive_success() {
+        // given
+        Category category2 = categoryRepository.save(new Category("질문"));
+
+        postRepository.save(Post.builder().user(user).category(category).title("자유글1").content("내용").build());
+        postRepository.save(Post.builder().user(user).category(category).title("자유글2").content("내용").build());
+        postRepository.save(Post.builder().user(user).category(category2).title("질문글1").content("내용").build());
+
+        em.flush();
+        em.clear();
+
+        // when
+        Page<Post> result = postRepository.findByCategoryActive(category2.getId(), PageRequest.of(0, 10));
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getTitle()).isEqualTo("질문글1");
+    }
+
+    @Test
+    @DisplayName("공지사항 조회")
+    void findNotices_success() {
+        // given
+        Category noticeCategory = categoryRepository.save(new Category("공지"));
+
+        postRepository.save(Post.builder().user(user).category(category).title("일반글").content("내용").build());
+        postRepository.save(Post.builder().user(user).category(noticeCategory).title("공지사항1").content("내용").build());
+
+        em.flush();
+        em.clear();
+
+        // when
+        List<Post> notices = postRepository.findNotices();
+
+        // then
+        assertThat(notices).hasSize(1);
+        assertThat(notices.get(0).getTitle()).isEqualTo("공지사항1");
+    }
+
+    @Test
+    @DisplayName("findByIdWithDetails fetch join 정상 동작")
+    void findByIdWithDetails_success() {
+        // given
+        Post post = postRepository.save(Post.builder()
+                .user(user)
+                .category(category)
+                .title("상세 조회 테스트")
+                .content("내용")
+                .build());
+
+        em.flush();
+        em.clear();
+
+        // when
+        var result = postRepository.findByIdWithDetails(post.getId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().getUser().getNickname()).isEqualTo("tester");
+        assertThat(result.get().getCategory().getName()).isEqualTo("자유");
+    }
+
+    @Test
+    @DisplayName("게시글 목록 조회 시 User/Category fetch join으로 N+1 방지")
+    void findAllActive_fetchJoin_noNPlusOne() {
+        // given
+        for (int i = 0; i < 3; i++) {
+            postRepository.save(Post.builder()
+                    .user(user).category(category)
+                    .title("글 " + i).content("내용 " + i)
+                    .build());
+        }
+
+        em.flush();
+        em.clear();
+
+        // when
+        Page<Post> result = postRepository.findAllActive(PageRequest.of(0, 10));
+
+        // then
+        assertThat(result.getContent()).isNotEmpty();
+        result.getContent().forEach(p -> {
+            assertThat(p.getUser().getNickname()).isEqualTo("tester");
+            assertThat(p.getCategory().getName()).isEqualTo("자유");
+        });
+    }
+
+    @Test
+    @DisplayName("게시글 상세 조회 시 User/Category fetch join으로 N+1 방지")
+    void findByIdWithDetails_fetchJoin_noNPlusOne() {
+        // given
+        Post saved = postRepository.save(Post.builder()
+                .user(user).category(category)
+                .title("fetch join 테스트").content("내용")
+                .build());
+
+        em.flush();
+        em.clear();
+
+        // when
+        var result = postRepository.findByIdWithDetails(saved.getId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().getUser().getNickname()).isEqualTo("tester");
+        assertThat(result.get().getCategory().getName()).isEqualTo("자유");
+    }
 }

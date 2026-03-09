@@ -2,9 +2,8 @@ package com.project.board.domain.post.service;
 
 import com.project.board.domain.category.entity.Category;
 import com.project.board.domain.category.repository.CategoryRepository;
-import com.project.board.domain.post.dto.PostCreateRequest;
-import com.project.board.domain.post.dto.PostResponse;
-import com.project.board.domain.post.dto.PostUpdateRequest;
+import com.project.board.domain.post.dto.*;
+import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
@@ -14,8 +13,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityManager;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -31,6 +35,8 @@ class PostServiceTest {
     private CategoryRepository categoryRepository;
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private EntityManager em;
 
     private User user;
     private Category category;
@@ -114,6 +120,149 @@ class PostServiceTest {
         // when & then
         assertThatThrownBy(() -> postService.delete(post.getId(), otherUser.getId()))
                 .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    @DisplayName("게시글 상세 조회 성공 (비로그인)")
+    void findById_guest_success() {
+        // given
+        PostCreateRequest request = createPostRequest("제목", "내용", category.getId());
+        PostResponse created = postService.create(user.getId(), request);
+
+        // when
+        PostResponse response = postService.findById(created.getId());
+
+        // then
+        assertThat(response.getTitle()).isEqualTo("제목");
+        assertThat(response.getContent()).isEqualTo("내용");
+    }
+
+    @Test
+    @DisplayName("게시글 상세 조회 성공 (로그인 - 조회수 증가)")
+    void findById_loggedIn_increasesViewCount() {
+        // given
+        PostCreateRequest request = createPostRequest("제목", "내용", category.getId());
+        PostResponse created = postService.create(user.getId(), request);
+
+        // when
+        PostResponse response = postService.findById(created.getId(), user.getId());
+
+        // then
+        assertThat(response.getViewCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("게시글 중복 조회 시 조회수 미증가")
+    void findById_duplicateView_noIncrease() {
+        // given
+        PostCreateRequest request = createPostRequest("제목", "내용", category.getId());
+        PostResponse created = postService.create(user.getId(), request);
+
+        // when
+        postService.findById(created.getId(), user.getId());
+        PostResponse response = postService.findById(created.getId(), user.getId());
+
+        // then
+        assertThat(response.getViewCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("게시글 수정 성공")
+    void update_success() {
+        // given
+        PostCreateRequest request = createPostRequest("제목", "내용", category.getId());
+        PostResponse created = postService.create(user.getId(), request);
+
+        PostUpdateRequest updateRequest = new PostUpdateRequest();
+        ReflectionTestUtils.setField(updateRequest, "title", "수정된 제목");
+        ReflectionTestUtils.setField(updateRequest, "content", "수정된 내용");
+        ReflectionTestUtils.setField(updateRequest, "categoryId", category.getId());
+
+        // when
+        PostResponse response = postService.update(created.getId(), user.getId(), updateRequest);
+
+        // then
+        assertThat(response.getTitle()).isEqualTo("수정된 제목");
+    }
+
+    @Test
+    @DisplayName("삭제된 게시글 조회 시 예외")
+    void findById_deleted_throwsException() {
+        // given
+        PostCreateRequest request = createPostRequest("제목", "내용", category.getId());
+        PostResponse created = postService.create(user.getId(), request);
+        postService.delete(created.getId(), user.getId());
+
+        // when & then
+        assertThatThrownBy(() -> postService.findById(created.getId()))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    @DisplayName("전체 게시글 목록 조회 (offset 페이지네이션)")
+    void findAll_success() {
+        // given
+        postService.create(user.getId(), createPostRequest("글1", "내용1", category.getId()));
+        postService.create(user.getId(), createPostRequest("글2", "내용2", category.getId()));
+        postService.create(user.getId(), createPostRequest("글3", "내용3", category.getId()));
+
+        // when
+        PostListWithNoticeResponse response = postService.findAll(null, PageRequest.of(0, 10));
+
+        // then
+        assertThat(response.getPosts().getTotalElements()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("인기 게시글 조회")
+    void findPopularPosts_success() {
+        // given
+        PostCreateRequest request = createPostRequest("인기글", "내용", category.getId());
+        PostResponse created = postService.create(user.getId(), request);
+        Post post = postRepository.findById(created.getId()).orElseThrow();
+        ReflectionTestUtils.setField(post, "likeCount", 100);
+
+        em.flush();
+        em.clear();
+
+        // when
+        List<PostListResponse> result = postService.findPopularPosts();
+
+        // then
+        assertThat(result).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("no-offset 페이지네이션")
+    void findAllNoOffset_success() {
+        // given
+        for (int i = 0; i < 5; i++) {
+            postService.create(user.getId(), createPostRequest("글" + i, "내용" + i, category.getId()));
+        }
+
+        // when
+        PostListWithNoticeNoOffsetResponse response = postService.findAllNoOffset(null, 3);
+
+        // then
+        assertThat(response.getPosts()).hasSize(3);
+    }
+
+    @Test
+    @DisplayName("검색 (Service 레벨)")
+    void search_success() {
+        // given
+        postService.create(user.getId(), createPostRequest("스프링 부트", "내용", category.getId()));
+        postService.create(user.getId(), createPostRequest("리액트", "내용", category.getId()));
+
+        PostSearchCondition condition = new PostSearchCondition();
+        condition.setSearchType(SearchType.TITLE);
+        condition.setKeyword("스프링");
+
+        // when
+        Page<PostListResponse> result = postService.search(condition, PageRequest.of(0, 10));
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(1);
     }
 
     private PostCreateRequest createPostRequest(String title, String content, Long categoryId) {
