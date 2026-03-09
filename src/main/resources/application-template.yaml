@@ -1,3 +1,8 @@
+# ============================================
+# 이 파일을 복사해서 application.yaml로 만드세요
+# cp application-template.yaml application.yaml
+# ============================================
+
 spring:
   profiles:
     active: local
@@ -5,7 +10,7 @@ spring:
   datasource:
     url: jdbc:p6spy:mysql://localhost:3306/board?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:changhak123!}
+    password: ${DB_PASSWORD:여기에_DB_비밀번호_입력}
     driver-class-name: com.p6spy.engine.spy.P6SpyDriver
 
   jpa:
@@ -22,7 +27,7 @@ spring:
       max-request-size: 50MB
 
 jwt:
-  secret: ${JWT_SECRET:YjJGa2MyUnpabVJ6WmpCaVptUXpOekk1T1RFMk5HWmlOR1UzWkRKa056ZzROV1l5TmpRNVlUaGtNR0V3WkRjeQ==}
+  secret: ${JWT_SECRET:여기에_Base64_인코딩된_시크릿키_입력}
   access-token-validity: ${JWT_ACCESS_VALIDITY:1800000}
   refresh-token-validity: ${JWT_REFRESH_VALIDITY:604800000}
 
