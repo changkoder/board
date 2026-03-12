@@ -41,6 +41,7 @@ public enum ErrorCode {
     DUPLICATE_REPORT(HttpStatus.CONFLICT, "이미 신고한 게시글/댓글입니다."),
     CANNOT_REPORT_OWN(HttpStatus.BAD_REQUEST, "본인의 글/댓글은 신고할 수 없습니다."),
     ALREADY_HIDDEN(HttpStatus.BAD_REQUEST, "이미 숨김 처리된 게시글/댓글입니다."),
+    NOT_HIDDEN(HttpStatus.BAD_REQUEST, "숨김 상태가 아닌 게시글/댓글입니다."),
 
     // 관리자
     ALREADY_BLOCKED(HttpStatus.BAD_REQUEST, "이미 차단된 회원입니다."),

@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +44,14 @@ public class AdminService {
     public void hidePost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if (post.isDeleted()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+        if (post.isHidden()) {
+            throw new CustomException(ErrorCode.ALREADY_HIDDEN);
+        }
+
         post.hide();
     }
 
@@ -53,6 +60,14 @@ public class AdminService {
     public void hideComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (comment.isDeleted()) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+        if (comment.isHidden()) {
+            throw new CustomException(ErrorCode.ALREADY_HIDDEN);
+        }
+
         comment.hide();
     }
 
@@ -61,6 +76,14 @@ public class AdminService {
     public void restorePost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if (post.isDeleted()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+        if (!post.isHidden()) {
+            throw new CustomException(ErrorCode.NOT_HIDDEN);
+        }
+
         post.restore();
     }
 
@@ -69,6 +92,14 @@ public class AdminService {
     public void restoreComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (comment.isDeleted()) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+        if (!comment.isHidden()) {
+            throw new CustomException(ErrorCode.NOT_HIDDEN);
+        }
+
         comment.restore();
     }
 
@@ -77,6 +108,11 @@ public class AdminService {
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if (post.isDeleted()) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
+
         post.delete();
         post.getUser().decreasePostCount();
     }
@@ -86,6 +122,11 @@ public class AdminService {
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (comment.isDeleted()) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+
         comment.delete();
         comment.getPost().decreaseCommentCount();
     }
@@ -121,10 +162,8 @@ public class AdminService {
     }
 
     // 차단 회원 목록
-    public List<UserResponse> getBlockedUsers() {
-        List<User> users = userRepository.findByStatus(User.Status.BLOCKED);
-        return users.stream()
-                .map(UserResponse::new)
-                .toList();
+    public Page<UserResponse> getBlockedUsers(Pageable pageable) {
+        return userRepository.findByStatus(User.Status.BLOCKED, pageable)
+                .map(UserResponse::new);
     }
 }

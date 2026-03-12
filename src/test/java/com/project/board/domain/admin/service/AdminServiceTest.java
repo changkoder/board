@@ -197,10 +197,10 @@ class AdminServiceTest {
         adminService.blockUser(user.getId());
 
         // when
-        List<UserResponse> result = adminService.getBlockedUsers();
+        Page<UserResponse> result = adminService.getBlockedUsers(PageRequest.of(0, 10));
 
         // then
-        assertThat(result).hasSize(1);
+        assertThat(result.getTotalElements()).isEqualTo(1);
     }
 
     @Test

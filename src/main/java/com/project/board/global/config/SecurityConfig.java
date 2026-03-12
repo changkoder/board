@@ -1,5 +1,7 @@
 package com.project.board.global.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.board.global.common.ApiResponse;
 import com.project.board.global.security.CustomAuthenticationEntryPoint;
 import com.project.board.global.security.jwt.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,6 +29,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -52,7 +55,8 @@ public class SecurityConfig {
                                 .accessDeniedHandler((request, response, accessDeniedException) -> {
                                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                                     response.setContentType("application/json;charset=UTF-8");
-                                    response.getWriter().write("{\"success\":false,\"data\":null,\"message\":\"권한이 없습니다.\"}");
+                                    ApiResponse<Void> body = ApiResponse.error("권한이 없습니다.");
+                                    response.getWriter().write(objectMapper.writeValueAsString(body));
                                 }))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

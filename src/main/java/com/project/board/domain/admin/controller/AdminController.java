@@ -11,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,8 +68,8 @@ public class AdminController {
     }
 
     @GetMapping("/users/blocked")
-    public ResponseEntity<ApiResponse<List<UserResponse>>> getBlockedUsers() {
-        List<UserResponse> response = adminService.getBlockedUsers();
+    public ResponseEntity<ApiResponse<Page<UserResponse>>> getBlockedUsers(Pageable pageable) {
+        Page<UserResponse> response = adminService.getBlockedUsers(pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

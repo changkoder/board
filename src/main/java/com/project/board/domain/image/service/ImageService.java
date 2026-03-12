@@ -11,10 +11,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ImageService {
+
+    private static final List<String> ALLOWED_EXTENSIONS = List.of("jpg", "jpeg", "png", "gif", "webp");
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -53,6 +56,11 @@ public class ImageService {
 
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
+            throw new CustomException(ErrorCode.INVALID_FILE_TYPE);
+        }
+
+        String extension = extractExtension(file.getOriginalFilename()).toLowerCase();
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
             throw new CustomException(ErrorCode.INVALID_FILE_TYPE);
         }
 
