@@ -526,6 +526,54 @@ a:hover {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
+  position: relative;
+}
+
+.img-menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.img-menu {
+  position: absolute;
+  top: 130px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 101;
+  overflow: hidden;
+  min-width: 160px;
+}
+
+.img-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.88rem;
+  color: var(--color-text);
+}
+
+.img-menu-item:hover {
+  background: var(--color-bg-secondary);
+}
+
+.img-menu-item-danger {
+  color: var(--color-danger);
+}
+
+.img-menu-item-danger:hover {
+  background: #fef2f2;
 }
 
 .mypage-avatar {

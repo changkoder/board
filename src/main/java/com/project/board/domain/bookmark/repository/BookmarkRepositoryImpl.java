@@ -44,7 +44,7 @@ public class BookmarkRepositoryImpl implements BookmarkRepositoryCustom {
                         bookmark.post.hidden.eq(false)
                 );
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
     }
 
     @Override

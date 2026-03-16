@@ -85,12 +85,12 @@ public class UserService {
 
     public Page<PostListResponse> getMyPosts(Long userId, Pageable pageable) {
         return postRepository.findByUserIdActive(userId, pageable)
-                .map(PostListResponse::from);
+                .map(post -> PostListResponse.from(post));
     }
 
     public Page<CommentResponse> getMyComments(Long userId, Pageable pageable) {
         return commentRepository.findByUserIdActive(userId, pageable)
-                .map(CommentResponse::from);
+                .map(comment -> CommentResponse.from(comment));
     }
 
     public Page<PostListResponse> getMyLikedPosts(Long userId, Pageable pageable) {
@@ -114,7 +114,7 @@ public class UserService {
         return new UserProfileResponse(user);
     }
 
-    public UserResponse getUserProfileByNickname(String nickname) {
+    public UserProfileResponse getUserProfileByNickname(String nickname) {
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -122,7 +122,7 @@ public class UserService {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
 
-        return new UserResponse(user);
+        return new UserProfileResponse(user);
     }
 
     public Page<PostListResponse> getUserPosts(Long userId, Pageable pageable) {
@@ -134,6 +134,6 @@ public class UserService {
         }
 
         return postRepository.findByUserIdActive(userId, pageable)
-                .map(PostListResponse::from);
+                .map(post -> PostListResponse.from(post));
     }
 }

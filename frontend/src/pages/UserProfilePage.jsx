@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { authApi } from '../api/auth';
 import Pagination from '../components/Pagination';
@@ -7,6 +7,7 @@ import Pagination from '../components/Pagination';
 export default function UserProfilePage() {
   const { userId } = useParams();
   const { user } = useAuth();
+  const location = useLocation();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(0);
@@ -16,6 +17,12 @@ export default function UserProfilePage() {
 
   // 프로필 로드 (최초 1회)
   useEffect(() => {
+    if (location.state?.profile && String(location.state.profile.id) === String(userId)) {
+      setProfile(location.state.profile);
+      setError(null);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     authApi.getUserProfile(userId)
       .then((res) => {

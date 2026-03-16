@@ -58,7 +58,7 @@ public class User extends BaseEntity {
             this.nickname = nickname;
         }
         if (profileImg != null) {
-            this.profileImg = profileImg;
+            this.profileImg = profileImg.isEmpty() ? null : profileImg;
         }
     }
 

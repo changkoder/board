@@ -238,9 +238,10 @@ class UserServiceTest {
     @DisplayName("닉네임으로 유저 프로필 조회 성공")
     void getUserProfileByNickname_success() {
         // when
-        UserResponse response = userService.getUserProfileByNickname("tester");
+        UserProfileResponse response = userService.getUserProfileByNickname("tester");
 
         // then
-        assertThat(response.getEmail()).isEqualTo("test@test.com");
+        assertThat(response.getNickname()).isEqualTo("tester");
+        assertThat(response.getId()).isEqualTo(user.getId());
     }
 }

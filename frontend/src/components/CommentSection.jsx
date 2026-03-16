@@ -15,7 +15,8 @@ function MentionText({ content }) {
   const handleMentionClick = async (nickname) => {
     try {
       const res = await authApi.getUserByNickname(nickname);
-      navigate(`/users/${res.data.data.id}`);
+      const profile = res.data.data;
+      navigate(`/users/${profile.id}`, { state: { profile } });
     } catch {
       showToast('존재하지 않는 사용자입니다.', 'error');
     }

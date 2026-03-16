@@ -87,8 +87,8 @@ public class UserController {
     }
 
     @GetMapping("/nickname/{nickname}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserByNickname(@PathVariable String nickname) {
-        UserResponse response = userService.getUserProfileByNickname(nickname);
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getUserByNickname(@PathVariable String nickname) {
+        UserProfileResponse response = userService.getUserProfileByNickname(nickname);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

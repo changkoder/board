@@ -29,6 +29,9 @@ export default function MyPage() {
   const [editing, setEditing] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname || '');
 
+  // 프로필 이미지 메뉴
+  const [showImgMenu, setShowImgMenu] = useState(false);
+
   // 비밀번호 변경
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -75,6 +78,25 @@ export default function MyPage() {
       setEditing(false);
     } catch (err) {
       showToast(err.response?.data?.message || '닉네임 변경에 실패했습니다.', 'error');
+    }
+  };
+
+  const handleAvatarClick = () => {
+    if (user.profileImg) {
+      setShowImgMenu(true);
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleDeleteProfileImg = async () => {
+    setShowImgMenu(false);
+    try {
+      await authApi.updateMe(null, '');
+      await refreshUser();
+      showToast('프로필 이미지가 삭제되었습니다.', 'success');
+    } catch (err) {
+      showToast(err.response?.data?.message || '이미지 삭제에 실패했습니다.', 'error');
     }
   };
 
@@ -133,7 +155,7 @@ export default function MyPage() {
         <div className="profile-avatar-section">
           <div
             className="mypage-avatar"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={handleAvatarClick}
             title="클릭하여 프로필 이미지 변경"
           >
             {user.profileImg ? (
@@ -152,6 +174,27 @@ export default function MyPage() {
             onChange={handleProfileImgChange}
             style={{ display: 'none' }}
           />
+          {showImgMenu && (
+            <div className="img-menu-backdrop" onClick={() => setShowImgMenu(false)}>
+              <div className="img-menu" onClick={(e) => e.stopPropagation()}>
+                <button
+                  className="img-menu-item"
+                  onClick={() => {
+                    setShowImgMenu(false);
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  새 이미지 업로드
+                </button>
+                <button
+                  className="img-menu-item img-menu-item-danger"
+                  onClick={handleDeleteProfileImg}
+                >
+                  이미지 삭제
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div className="profile-info">
           <p>
