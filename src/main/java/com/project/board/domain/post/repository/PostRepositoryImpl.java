@@ -29,7 +29,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                 .selectFrom(post)
                 .join(post.user).fetchJoin()
                 .join(post.category).fetchJoin()
-                //.leftJoin(post.images).fetchJoin()
                 .where(post.deleted.eq(false),
                         post.hidden.eq(false),
                         categoryIdEq(condition.getCategoryId()),
