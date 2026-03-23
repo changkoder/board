@@ -10,7 +10,5 @@ public interface CommentLikeRepositoryCustom {
 
     Optional<CommentLike> findByUserAndComment(Long userId, Long commentId);
 
-    boolean existsByUserAndComment(Long userId, Long commentId);
-
     Set<Long> findLikedCommentIds(Long userId, List<Long> commentIds);
 }

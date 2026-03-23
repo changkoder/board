@@ -29,19 +29,6 @@ public class CommentLikeRepositoryImpl implements CommentLikeRepositoryCustom {
         return Optional.ofNullable(result);
     }
 
-    @Override
-    public boolean existsByUserAndComment(Long userId, Long commentId) {
-        Integer result = queryFactory
-                .selectOne()
-                .from(commentLike)
-                .where(
-                        commentLike.user.id.eq(userId),
-                        commentLike.comment.id.eq(commentId)
-                )
-                .fetchFirst();
-
-        return result != null;
-    }
 
     @Override
     public Set<Long> findLikedCommentIds(Long userId, List<Long> commentIds) {
