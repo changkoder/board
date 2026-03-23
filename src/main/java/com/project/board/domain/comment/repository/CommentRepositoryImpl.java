@@ -45,7 +45,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         comment.hidden.eq(false)
                 );
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
     }
 
     @Override
@@ -71,7 +71,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         comment.deleted.eq(false)
                 );
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
     }
 
     @Override

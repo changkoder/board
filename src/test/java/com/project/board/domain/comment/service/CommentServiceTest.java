@@ -7,6 +7,9 @@ import com.project.board.domain.comment.dto.CommentResponse;
 import com.project.board.domain.comment.dto.CommentUpdateRequest;
 import com.project.board.domain.comment.entity.Comment;
 import com.project.board.domain.comment.repository.CommentRepository;
+import com.project.board.domain.like.entity.CommentLike;
+import com.project.board.domain.like.repository.CommentLikeRepository;
+import com.project.board.domain.like.service.LikeService;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
@@ -19,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +42,10 @@ class CommentServiceTest {
     private CategoryRepository categoryRepository;
     @Autowired
     private CommentRepository commentRepository;
+    @Autowired
+    private CommentLikeRepository commentLikeRepository;
+    @Autowired
+    private LikeService likeService;
 
     private User user;
     private Post post;
@@ -189,7 +198,7 @@ class CommentServiceTest {
         commentService.create(post.getId(), user.getId(), createCommentRequest("댓글3", null));
 
         // when
-        var result = commentService.findByPostId(post.getId());
+        var result = commentService.findByPostId(post.getId(), user.getId());
 
         // then
         assertThat(result).hasSize(3);
@@ -208,6 +217,79 @@ class CommentServiceTest {
         // then
         Comment deleted = commentRepository.findById(comment.getId()).orElseThrow();
         assertThat(deleted.isDeleted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("로그인 사용자 - 좋아요한 댓글은 liked=true, 안 한 댓글은 liked=false")
+    void findByPostId_withLogin_likedStatus() {
+        // given
+        CommentResponse c1 = commentService.create(post.getId(), user.getId(), createCommentRequest("댓글1", null));
+        commentService.create(post.getId(), user.getId(), createCommentRequest("댓글2", null));
+
+        likeService.toggleCommentLike(user.getId(), c1.getId());
+
+        // when
+        List<CommentResponse> result = commentService.findByPostId(post.getId(), user.getId());
+
+        // then
+        CommentResponse liked = result.stream().filter(c -> c.getId().equals(c1.getId())).findFirst().orElseThrow();
+        CommentResponse notLiked = result.stream().filter(c -> !c.getId().equals(c1.getId())).findFirst().orElseThrow();
+
+        assertThat(liked.isLiked()).isTrue();
+        assertThat(notLiked.isLiked()).isFalse();
+    }
+
+    @Test
+    @DisplayName("비로그인(userId=null) - 전부 liked=false")
+    void findByPostId_withoutLogin_allLikedFalse() {
+        // given
+        CommentResponse c1 = commentService.create(post.getId(), user.getId(), createCommentRequest("댓글1", null));
+        commentService.create(post.getId(), user.getId(), createCommentRequest("댓글2", null));
+
+        likeService.toggleCommentLike(user.getId(), c1.getId());
+
+        // when
+        List<CommentResponse> result = commentService.findByPostId(post.getId(), null);
+
+        // then
+        assertThat(result).allMatch(c -> !c.isLiked());
+    }
+
+    @Test
+    @DisplayName("대댓글(children)도 liked 상태가 정확히 반영됨")
+    void findByPostId_childrenLikedStatus() {
+        // given
+        CommentResponse parent = commentService.create(post.getId(), user.getId(), createCommentRequest("부모", null));
+        CommentResponse child = commentService.create(post.getId(), user.getId(), createCommentRequest("자식", parent.getId()));
+
+        likeService.toggleCommentLike(user.getId(), child.getId());
+
+        // when
+        List<CommentResponse> result = commentService.findByPostId(post.getId(), user.getId());
+
+        // then
+        CommentResponse parentResult = result.get(0);
+        assertThat(parentResult.isLiked()).isFalse();
+        assertThat(parentResult.getChildren()).hasSize(1);
+        assertThat(parentResult.getChildren().get(0).isLiked()).isTrue();
+    }
+
+    @Test
+    @DisplayName("부모만 좋아요하고 자식은 안 했을 때 각각 정확한 상태")
+    void findByPostId_parentLikedChildNot() {
+        // given
+        CommentResponse parent = commentService.create(post.getId(), user.getId(), createCommentRequest("부모", null));
+        commentService.create(post.getId(), user.getId(), createCommentRequest("자식", parent.getId()));
+
+        likeService.toggleCommentLike(user.getId(), parent.getId());
+
+        // when
+        List<CommentResponse> result = commentService.findByPostId(post.getId(), user.getId());
+
+        // then
+        CommentResponse parentResult = result.get(0);
+        assertThat(parentResult.isLiked()).isTrue();
+        assertThat(parentResult.getChildren().get(0).isLiked()).isFalse();
     }
 
     private CommentCreateRequest createCommentRequest(String content, Long parentId) {

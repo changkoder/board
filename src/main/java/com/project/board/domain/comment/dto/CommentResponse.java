@@ -18,15 +18,20 @@ public class CommentResponse {
     private int likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean liked;
     private List<CommentResponse> children;
     private Long postId;
     private String postTitle;
 
     public static CommentResponse from(Comment comment) {
-        return from(comment, null);
+        return from(comment, null, false);
     }
 
     public static CommentResponse from(Comment comment, List<CommentResponse> children) {
+        return from(comment, children, false);
+    }
+
+    public static CommentResponse from(Comment comment, List<CommentResponse> children, boolean liked) {
         String nickname = comment.getUser().isDeleted() ? "(탈퇴한 사용자)" : comment.getUser().getNickname();
         String profileImg = comment.getUser().isDeleted() ? null : comment.getUser().getProfileImg();
 
@@ -37,6 +42,7 @@ public class CommentResponse {
                 .authorNickname(nickname)
                 .authorProfileImg(profileImg)
                 .likeCount(comment.getLikeCount())
+                .liked(liked)
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
                 .postId(comment.getPost().getId())

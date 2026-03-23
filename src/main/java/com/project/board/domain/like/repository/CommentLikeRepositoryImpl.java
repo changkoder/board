@@ -4,7 +4,10 @@ import com.project.board.domain.like.entity.CommentLike;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.project.board.domain.like.entity.QCommentLike.commentLike;
 
@@ -38,5 +41,19 @@ public class CommentLikeRepositoryImpl implements CommentLikeRepositoryCustom {
                 .fetchFirst();
 
         return result != null;
+    }
+
+    @Override
+    public Set<Long> findLikedCommentIds(Long userId, List<Long> commentIds) {
+        List<Long> ids = queryFactory
+                .select(commentLike.comment.id)
+                .from(commentLike)
+                .where(
+                        commentLike.user.id.eq(userId),
+                        commentLike.comment.id.in(commentIds)
+                )
+                .fetch();
+
+        return new HashSet<>(ids);
     }
 }

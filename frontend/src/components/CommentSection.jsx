@@ -234,7 +234,7 @@ export default function CommentSection({ postId }) {
         {isAuthenticated && (
           <>
             <button onClick={() => handleLike(comment.id)} className="btn-text">
-              좋아요 {comment.likeCount}
+              {comment.liked ? '❤' : '♡'} 좋아요 {comment.likeCount}
             </button>
             <button
               onClick={() => {

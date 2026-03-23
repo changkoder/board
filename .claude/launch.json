@@ -10,7 +10,7 @@
     {
       "name": "frontend",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "npm", "run", "dev"],
+      "runtimeArgs": ["/c", "npx", "vite", "--host"],
       "port": 5173,
       "cwd": "frontend"
     }

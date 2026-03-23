@@ -7,6 +7,7 @@ import com.project.board.domain.comment.entity.Comment;
 import com.project.board.domain.comment.repository.CommentRepository;
 import com.project.board.domain.notification.entity.Notification;
 import com.project.board.domain.notification.service.NotificationService;
+import com.project.board.domain.like.repository.CommentLikeRepository;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
@@ -17,10 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +29,7 @@ import java.util.regex.Pattern;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
@@ -39,8 +38,17 @@ public class CommentService {
     private static final Pattern MENTION_PATTERN = Pattern.compile("@(\\S+)");
 
 
-    public List<CommentResponse> findByPostId(Long postId){
+    public List<CommentResponse> findByPostId(Long postId, Long userId){
         List<Comment> all = commentRepository.findAllByPostId(postId);
+
+        // 로그인 사용자의 좋아요 ID Set 조회
+        Set<Long> likedIds = Set.of();
+        if (userId != null) {
+            List<Long> commentIds = all.stream().map(Comment::getId).toList();
+            if (!commentIds.isEmpty()) {
+                likedIds = commentLikeRepository.findLikedCommentIds(userId, commentIds);
+            }
+        }
 
         // 부모 댓글만 필터
         List<Comment> parents = all.stream()
@@ -53,14 +61,15 @@ public class CommentService {
                 .collect(Collectors.groupingBy(c -> c.getParent().getId()));
 
         // 계층 구조 조립
+        Set<Long> finalLikedIds = likedIds;
         return parents.stream()
                 .map(parent -> {
                     List<CommentResponse> childResponses = childrenMap
                             .getOrDefault(parent.getId(), List.of())
                             .stream()
-                            .map(CommentResponse::from)
+                            .map(comment -> CommentResponse.from(comment, null, finalLikedIds.contains(comment.getId())))
                             .toList();
-                    return CommentResponse.from(parent, childResponses);
+                    return CommentResponse.from(parent, childResponses, finalLikedIds.contains(parent.getId()));
                 })
                 .toList();
     }
