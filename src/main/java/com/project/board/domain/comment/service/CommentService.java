@@ -44,7 +44,7 @@ public class CommentService {
         // 로그인 사용자의 좋아요 ID Set 조회
         Set<Long> likedIds = Set.of();
         if (userId != null) {
-            List<Long> commentIds = all.stream().map(Comment::getId).toList();
+            List<Long> commentIds = all.stream().map(comment -> comment.getId()).toList();
             if (!commentIds.isEmpty()) {
                 likedIds = commentLikeRepository.findLikedCommentIds(userId, commentIds);
             }
