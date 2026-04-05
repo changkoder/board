@@ -121,13 +121,6 @@ public class PostService {
         Post post = postRepository.findByIdWithDetails(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        if(post.isDeleted()){
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
-        }
-        if(post.isHidden()){
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
-        }
-
         return PostResponse.from(post);
     }
 
@@ -135,13 +128,6 @@ public class PostService {
     public PostResponse findById(Long postId, Long userId){
         Post post = postRepository.findByIdWithDetails(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
-        if(post.isDeleted()){
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
-        }
-        if(post.isHidden()){
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
-        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));

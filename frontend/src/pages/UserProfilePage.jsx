@@ -90,6 +90,9 @@ export default function UserProfilePage() {
           )}
         </div>
         <h1 className="user-profile-nickname">{profile.nickname}</h1>
+        {profile.status === 'BLOCKED' && (
+          <p style={{ color: '#e74c3c', fontSize: '14px', marginTop: '8px' }}>활동 정지된 사용자</p>
+        )}
       </div>
 
       <h2 className="user-profile-posts-title">작성한 글</h2>

@@ -72,7 +72,7 @@ export default function MyPage() {
 
   const handleUpdateNickname = async () => {
     try {
-      await authApi.updateMe(nickname, null);
+      await authApi.updateMe(nickname, user.profileImg);
       await refreshUser();
       showToast('닉네임이 변경되었습니다.', 'success');
       setEditing(false);
@@ -92,7 +92,7 @@ export default function MyPage() {
   const handleDeleteProfileImg = async () => {
     setShowImgMenu(false);
     try {
-      await authApi.updateMe(null, '');
+      await authApi.updateMe(user.nickname, null);
       await refreshUser();
       showToast('프로필 이미지가 삭제되었습니다.', 'success');
     } catch (err) {
@@ -114,7 +114,7 @@ export default function MyPage() {
     try {
       const uploadRes = await imageApi.upload([file]);
       const imageUrl = uploadRes.data.data[0].imageUrl;
-      await authApi.updateMe(null, imageUrl);
+      await authApi.updateMe(user.nickname, imageUrl);
       await refreshUser();
       showToast('프로필 이미지가 변경되었습니다.', 'success');
     } catch (err) {

@@ -188,7 +188,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                         post.hidden.eq(false)
                 );
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
     }
 
     @Override
@@ -214,7 +214,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                         post.deleted.eq(false)
                 );
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
     }
 
     @Override
@@ -238,7 +238,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                 .selectFrom(post)
                 .join(post.user).fetchJoin()
                 .join(post.category).fetchJoin()
-                .where(post.id.eq(id))
+                .where(post.id.eq(id),
+                        post.deleted.eq(false),
+                        post.hidden.eq(false))
                 .fetchOne();
 
         return Optional.ofNullable(result);

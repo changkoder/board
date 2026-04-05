@@ -9,10 +9,12 @@ public class UserProfileResponse {
     private final Long id;
     private final String nickname;
     private final String profileImg;
+    private final String status;
 
     public UserProfileResponse(User user) {
         this.id = user.getId();
         this.nickname = user.getNickname();
         this.profileImg = user.getProfileImg();
+        this.status = user.getStatus().name();
     }
 }

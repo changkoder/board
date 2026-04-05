@@ -54,12 +54,8 @@ public class User extends BaseEntity {
     }
 
     public void updateProfile(String nickname, String profileImg) {
-        if (nickname != null) {
-            this.nickname = nickname;
-        }
-        if (profileImg != null) {
-            this.profileImg = profileImg.isEmpty() ? null : profileImg;
-        }
+        this.nickname = nickname;
+        this.profileImg = profileImg;
     }
 
     public void changePassword(String newPassword) {
