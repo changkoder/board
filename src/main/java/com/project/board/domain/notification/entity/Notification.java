@@ -34,6 +34,11 @@ public class Notification {
     private Long actorId; // 알림 발생시킨 사람
 
     @Column(nullable = false)
+    private String actorNickname;
+
+    private String actorProfileImg;
+
+    @Column(nullable = false)
     private String message;
 
     @Column(nullable = false)
@@ -44,12 +49,15 @@ public class Notification {
 
     @Builder
     public Notification(User user, NotificationType type, Long postId,
-                        Long commentId, Long actorId, String message) {
+                        Long commentId, Long actorId, String actorNickname,
+                        String actorProfileImg, String message) {
         this.user = user;
         this.type = type;
         this.postId = postId;
         this.commentId = commentId;
         this.actorId = actorId;
+        this.actorNickname = actorNickname;
+        this.actorProfileImg = actorProfileImg;
         this.message = message;
         this.isRead = false;
         this.createdAt = LocalDateTime.now();

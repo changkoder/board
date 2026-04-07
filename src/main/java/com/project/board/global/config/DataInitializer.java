@@ -634,41 +634,49 @@ public class DataInitializer implements CommandLineRunner {
         notificationRepository.save(Notification.builder()
                 .user(user3).type(Notification.NotificationType.COMMENT)
                 .postId(posts.get("p3").getId()).actorId(user4.getId())
+                .actorNickname("리액트러버").actorProfileImg(null)
                 .message("리액트러버님이 회원님의 글에 댓글을 달았습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user2).type(Notification.NotificationType.COMMENT)
                 .postId(posts.get("p2").getId()).actorId(user3.getId())
+                .actorNickname("자바킹").actorProfileImg(null)
                 .message("자바킹님이 회원님의 글에 댓글을 달았습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user5).type(Notification.NotificationType.COMMENT)
                 .postId(posts.get("p5").getId()).actorId(user2.getId())
+                .actorNickname("코딩마스터").actorProfileImg(null)
                 .message("코딩마스터님이 회원님의 글에 댓글을 달았습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user1).type(Notification.NotificationType.COMMENT)
                 .postId(posts.get("p8").getId()).actorId(user3.getId())
+                .actorNickname("자바킹").actorProfileImg(null)
                 .message("자바킹님이 회원님의 글에 댓글을 달았습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user1).type(Notification.NotificationType.COMMENT)
                 .postId(posts.get("p6").getId()).actorId(user2.getId())
+                .actorNickname("코딩마스터").actorProfileImg(null)
                 .message("코딩마스터님이 회원님의 글에 댓글을 달았습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user2).type(Notification.NotificationType.COMMENT)
                 .postId(posts.get("p13").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 회원님의 글에 댓글을 달았습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user4).type(Notification.NotificationType.COMMENT)
                 .postId(posts.get("p9").getId()).actorId(user2.getId())
+                .actorNickname("코딩마스터").actorProfileImg(null)
                 .message("코딩마스터님이 회원님의 글에 댓글을 달았습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user5).type(Notification.NotificationType.COMMENT)
                 .postId(posts.get("p16").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 회원님의 글에 댓글을 달았습니다.")
                 .build());
 
@@ -676,21 +684,25 @@ public class DataInitializer implements CommandLineRunner {
         notificationRepository.save(Notification.builder()
                 .user(user3).type(Notification.NotificationType.REPLY)
                 .postId(posts.get("p3").getId()).actorId(user4.getId())
+                .actorNickname("리액트러버").actorProfileImg(null)
                 .message("리액트러버님이 회원님의 댓글에 답글을 달았습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user4).type(Notification.NotificationType.REPLY)
                 .postId(posts.get("p3").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 회원님의 댓글에 답글을 달았습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user3).type(Notification.NotificationType.REPLY)
                 .postId(posts.get("p8").getId()).actorId(user2.getId())
+                .actorNickname("코딩마스터").actorProfileImg(null)
                 .message("코딩마스터님이 회원님의 댓글에 답글을 달았습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user2).type(Notification.NotificationType.REPLY)
                 .postId(posts.get("p9").getId()).actorId(user4.getId())
+                .actorNickname("리액트러버").actorProfileImg(null)
                 .message("리액트러버님이 회원님의 댓글에 답글을 달았습니다.")
                 .build());
 
@@ -698,31 +710,37 @@ public class DataInitializer implements CommandLineRunner {
         notificationRepository.save(Notification.builder()
                 .user(user2).type(Notification.NotificationType.POST_LIKE)
                 .postId(posts.get("p13").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 회원님의 글을 좋아합니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user5).type(Notification.NotificationType.POST_LIKE)
                 .postId(posts.get("p5").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 회원님의 글을 좋아합니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user1).type(Notification.NotificationType.POST_LIKE)
                 .postId(posts.get("p6").getId()).actorId(user2.getId())
+                .actorNickname("코딩마스터").actorProfileImg(null)
                 .message("코딩마스터님이 회원님의 글을 좋아합니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user3).type(Notification.NotificationType.POST_LIKE)
                 .postId(posts.get("p14").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 회원님의 글을 좋아합니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user4).type(Notification.NotificationType.POST_LIKE)
                 .postId(posts.get("p4").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 회원님의 글을 좋아합니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user5).type(Notification.NotificationType.POST_LIKE)
                 .postId(posts.get("p16").getId()).actorId(user2.getId())
+                .actorNickname("코딩마스터").actorProfileImg(null)
                 .message("코딩마스터님이 회원님의 글을 좋아합니다.")
                 .build());
 
@@ -730,16 +748,19 @@ public class DataInitializer implements CommandLineRunner {
         notificationRepository.save(Notification.builder()
                 .user(user3).type(Notification.NotificationType.COMMENT_LIKE)
                 .postId(posts.get("p8").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 회원님의 댓글을 좋아합니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user2).type(Notification.NotificationType.COMMENT_LIKE)
                 .postId(posts.get("p9").getId()).actorId(user4.getId())
+                .actorNickname("리액트러버").actorProfileImg(null)
                 .message("리액트러버님이 회원님의 댓글을 좋아합니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user2).type(Notification.NotificationType.COMMENT_LIKE)
                 .postId(posts.get("p5").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 회원님의 댓글을 좋아합니다.")
                 .build());
 
@@ -747,71 +768,85 @@ public class DataInitializer implements CommandLineRunner {
         notificationRepository.save(Notification.builder()
                 .user(user3).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p3").getId()).actorId(user4.getId())
+                .actorNickname("리액트러버").actorProfileImg(null)
                 .message("리액트러버님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user4).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p3").getId()).actorId(user2.getId())
+                .actorNickname("코딩마스터").actorProfileImg(null)
                 .message("코딩마스터님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user3).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p3").getId()).actorId(user2.getId())
+                .actorNickname("코딩마스터").actorProfileImg(null)
                 .message("코딩마스터님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user2).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p5").getId()).actorId(user4.getId())
+                .actorNickname("리액트러버").actorProfileImg(null)
                 .message("리액트러버님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user3).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p8").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user3).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p2").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user2).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p9").getId()).actorId(user4.getId())
+                .actorNickname("리액트러버").actorProfileImg(null)
                 .message("리액트러버님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user1).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p6").getId()).actorId(user5.getId())
+                .actorNickname("취준생김철수").actorProfileImg(null)
                 .message("취준생김철수님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user5).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p16").getId()).actorId(user3.getId())
+                .actorNickname("자바킹").actorProfileImg(null)
                 .message("자바킹님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user2).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p20").getId()).actorId(user1.getId())
+                .actorNickname("개발초보").actorProfileImg(null)
                 .message("개발초보님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user5).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p18").getId()).actorId(user4.getId())
+                .actorNickname("리액트러버").actorProfileImg(null)
                 .message("리액트러버님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user4).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p18").getId()).actorId(user3.getId())
+                .actorNickname("자바킹").actorProfileImg(null)
                 .message("자바킹님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user1).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p13").getId()).actorId(user4.getId())
+                .actorNickname("리액트러버").actorProfileImg(null)
                 .message("리액트러버님이 댓글에서 회원님을 언급했습니다.")
                 .build());
         notificationRepository.save(Notification.builder()
                 .user(user2).type(Notification.NotificationType.MENTION)
                 .postId(posts.get("p13").getId()).actorId(user3.getId())
+                .actorNickname("자바킹").actorProfileImg(null)
                 .message("자바킹님이 댓글에서 회원님을 언급했습니다.")
                 .build());
     }

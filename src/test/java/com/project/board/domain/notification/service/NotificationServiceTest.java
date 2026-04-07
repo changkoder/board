@@ -72,7 +72,7 @@ class NotificationServiceTest {
     void notify_success() {
         // when
         notificationService.notify(receiver, Notification.NotificationType.COMMENT,
-                post.getId(), null, actor.getId(), "댓글 알림");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "댓글 알림");
 
         // then
         List<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId());
@@ -84,9 +84,9 @@ class NotificationServiceTest {
     void getMyNotifications_success() {
         // given
         notificationService.notify(receiver, Notification.NotificationType.COMMENT,
-                post.getId(), null, actor.getId(), "알림1");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림1");
         notificationService.notify(receiver, Notification.NotificationType.REPLY,
-                post.getId(), null, actor.getId(), "알림2");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림2");
 
         // when
         List<NotificationResponse> result = notificationService.getMyNotifications(receiver.getId());
@@ -100,7 +100,7 @@ class NotificationServiceTest {
     void markAsRead_success() {
         // given
         notificationService.notify(receiver, Notification.NotificationType.COMMENT,
-                post.getId(), null, actor.getId(), "알림");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림");
         List<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId());
         Long notificationId = notifications.get(0).getId();
 
@@ -117,11 +117,11 @@ class NotificationServiceTest {
     void markAllAsRead_success() {
         // given
         notificationService.notify(receiver, Notification.NotificationType.COMMENT,
-                post.getId(), null, actor.getId(), "알림1");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림1");
         notificationService.notify(receiver, Notification.NotificationType.REPLY,
-                post.getId(), null, actor.getId(), "알림2");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림2");
         notificationService.notify(receiver, Notification.NotificationType.MENTION,
-                post.getId(), null, actor.getId(), "알림3");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림3");
 
         // when
         notificationService.markAllAsRead(receiver.getId());
@@ -138,7 +138,7 @@ class NotificationServiceTest {
     void notify_selfNotification_skipped() {
         // when
         notificationService.notify(actor, Notification.NotificationType.COMMENT,
-                post.getId(), null, actor.getId(), "본인 알림");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "본인 알림");
 
         // then
         List<NotificationResponse> notifications = notificationService.getMyNotifications(actor.getId());
@@ -150,11 +150,11 @@ class NotificationServiceTest {
     void notify_duplicateLike_prevented() {
         // given
         notificationService.notify(receiver, Notification.NotificationType.POST_LIKE,
-                post.getId(), null, actor.getId(), "좋아요 알림");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "좋아요 알림");
 
         // when
         notificationService.notify(receiver, Notification.NotificationType.POST_LIKE,
-                post.getId(), null, actor.getId(), "좋아요 알림");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "좋아요 알림");
 
         // then
         List<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId());
@@ -166,7 +166,7 @@ class NotificationServiceTest {
     void markAsRead_otherUser_throwsException() {
         // given
         notificationService.notify(receiver, Notification.NotificationType.COMMENT,
-                post.getId(), null, actor.getId(), "알림");
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림");
         List<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId());
         Long notificationId = notifications.get(0).getId();
 

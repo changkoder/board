@@ -90,6 +90,7 @@ export default function UserProfilePage() {
           )}
         </div>
         <h1 className="user-profile-nickname">{profile.nickname}</h1>
+        <p style={{ color: 'var(--color-text-light)', fontSize: '14px', marginTop: '4px' }}>작성글 {profile.postCount}개</p>
         {profile.status === 'BLOCKED' && (
           <p style={{ color: '#e74c3c', fontSize: '14px', marginTop: '8px' }}>활동 정지된 사용자</p>
         )}

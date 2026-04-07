@@ -45,6 +45,19 @@ export default function NotificationPage() {
     }
   };
 
+  const handleAvatarClick = async (e, noti) => {
+    e.stopPropagation();
+    try {
+      if (!noti.read) {
+        await notificationApi.markAsRead(noti.id);
+        refreshCount();
+      }
+      navigate(`/users/${noti.actorId}`);
+    } catch (err) {
+      showToast(err.response?.data?.message || '알림 처리에 실패했습니다.', 'error');
+    }
+  };
+
   const handleMarkAllAsRead = async () => {
     try {
       await notificationApi.markAllAsRead();
@@ -84,12 +97,26 @@ export default function NotificationPage() {
             <li
               key={noti.id}
               className={`notification-item ${noti.read ? '' : 'notification-unread'}`}
-              onClick={() => handleClick(noti)}
             >
-              <p className="notification-message">{noti.message}</p>
-              <span className="notification-date">
-                {new Date(noti.createdAt).toLocaleString()}
+              <span
+                className="inline-avatar"
+                onClick={(e) => handleAvatarClick(e, noti)}
+                style={{ cursor: 'pointer', flexShrink: 0 }}
+              >
+                {noti.actorProfileImg ? (
+                  <img src={noti.actorProfileImg} alt="" />
+                ) : (
+                  <span className="inline-avatar-placeholder">
+                    {noti.actorNickname?.charAt(0) || '?'}
+                  </span>
+                )}
               </span>
+              <div className="notification-content" onClick={() => handleClick(noti)} style={{ cursor: 'pointer', flex: 1 }}>
+                <p className="notification-message">{noti.message}</p>
+                <span className="notification-date">
+                  {new Date(noti.createdAt).toLocaleString()}
+                </span>
+              </div>
             </li>
           ))}
         </ul>

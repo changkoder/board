@@ -15,6 +15,8 @@ public class NotificationResponse {
     private Long postId;
     private Long commentId;
     private Long actorId;
+    private String actorNickname;
+    private String actorProfileImg;
     private String message;
     private boolean isRead;
     private LocalDateTime createdAt;
@@ -26,6 +28,8 @@ public class NotificationResponse {
                 .postId(notification.getPostId())
                 .commentId(notification.getCommentId())
                 .actorId(notification.getActorId())
+                .actorNickname(notification.getActorNickname())
+                .actorProfileImg(notification.getActorProfileImg())
                 .message(notification.getMessage())
                 .isRead(notification.isRead())
                 .createdAt(notification.getCreatedAt())

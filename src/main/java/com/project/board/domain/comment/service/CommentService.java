@@ -125,6 +125,8 @@ public class CommentService {
                     post.getId(),
                     parent.getId(),
                     userId,
+                    user.getNickname(),
+                    user.getProfileImg(),
                     user.getNickname() + "님이 회원님의 댓글에 답글을 남겼습니다."
             );
         } else {
@@ -134,6 +136,8 @@ public class CommentService {
                     post.getId(),
                     comment.getId(),
                     userId,
+                    user.getNickname(),
+                    user.getProfileImg(),
                     user.getNickname() + "님이 회원님의 글에 댓글을 남겼습니다."
             );
         }
@@ -158,6 +162,8 @@ public class CommentService {
                         post.getId(),
                         comment.getId(),
                         author.getId(),
+                        author.getNickname(),
+                        author.getProfileImg(),
                         author.getNickname() + "님이 댓글에서 회원님을 멘션했습니다."
                 );
             });

@@ -63,6 +63,8 @@ public class LikeService {
                     post.getId(),
                     null,
                     userId,
+                    user.getNickname(),
+                    user.getProfileImg(),
                     user.getNickname() + "님이 회원님의 글을 좋아합니다."
             );
 
@@ -101,6 +103,8 @@ public class LikeService {
                     comment.getPost().getId(),
                     comment.getId(),
                     userId,
+                    user.getNickname(),
+                    user.getProfileImg(),
                     user.getNickname() + "님이 회원님의 댓글을 좋아합니다."
             );
 

@@ -1050,9 +1050,11 @@ a:hover {
 }
 
 .notification-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 16px 20px;
   border-bottom: 1px solid var(--color-border-light);
-  cursor: pointer;
   transition: background var(--transition);
 }
 
