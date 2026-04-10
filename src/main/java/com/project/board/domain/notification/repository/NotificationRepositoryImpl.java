@@ -18,15 +18,6 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Notification> findByUserId(Long userId) {
-        return queryFactory
-                .selectFrom(notification)
-                .where(notification.user.id.eq(userId))
-                .orderBy(notification.createdAt.desc())
-                .fetch();
-    }
-
-    @Override
     public Page<Notification> findByUserId(Long userId, Pageable pageable) {
         List<Notification> content = queryFactory
                 .selectFrom(notification)

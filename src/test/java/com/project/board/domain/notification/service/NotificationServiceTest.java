@@ -132,7 +132,7 @@ class NotificationServiceTest {
         em.clear();
 
         // then
-        List<Notification> all = notificationRepository.findByUserId(receiver.getId());
+        List<Notification> all = notificationRepository.findByUserId(receiver.getId(), PageRequest.of(0, 100)).getContent();
         assertThat(all).allMatch(Notification::isRead);
     }
 
