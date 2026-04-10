@@ -4,11 +4,11 @@ import com.project.board.domain.notification.dto.NotificationResponse;
 import com.project.board.domain.notification.service.NotificationService;
 import com.project.board.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,10 +18,16 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<NotificationResponse>>> getMyNotifications(
-            @AuthenticationPrincipal Long userId) {
-        List<NotificationResponse> response = notificationService.getMyNotifications(userId);
+    public ResponseEntity<ApiResponse<Page<NotificationResponse>>> getMyNotifications(
+            @AuthenticationPrincipal Long userId, Pageable pageable) {
+        Page<NotificationResponse> response = notificationService.getMyNotifications(userId, pageable);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/unread-count")
+    public ResponseEntity<ApiResponse<Long>> getUnreadCount(@AuthenticationPrincipal Long userId) {
+        long count = notificationService.countUnread(userId);
+        return ResponseEntity.ok(ApiResponse.success(count));
     }
 
     @PatchMapping("/{notificationId}/read")

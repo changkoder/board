@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
+import NotificationDropdown from '../NotificationDropdown';
 
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const { unreadCount } = useNotification();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -25,12 +28,19 @@ export default function Header() {
               <Link to="/posts/new" className="nav-link">
                 글쓰기
               </Link>
-              <Link to="/notifications" className="nav-link nav-notification">
-                알림
-                {unreadCount > 0 && (
-                  <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
-                )}
-              </Link>
+              <div className="nav-notification-wrapper">
+                <button
+                  type="button"
+                  className="nav-link nav-notification btn-link"
+                  onClick={() => setDropdownOpen((v) => !v)}
+                >
+                  알림
+                  {unreadCount > 0 && (
+                    <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+                  )}
+                </button>
+                <NotificationDropdown open={dropdownOpen} onClose={() => setDropdownOpen(false)} />
+              </div>
               <Link to="/mypage" className="nav-link nav-profile">
                 {user.profileImg ? (
                   <img src={user.profileImg} alt={user.nickname} className="nav-profile-img" />

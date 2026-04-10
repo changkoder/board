@@ -16,6 +16,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -75,8 +77,8 @@ class NotificationServiceTest {
                 post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "댓글 알림");
 
         // then
-        List<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId());
-        assertThat(notifications).hasSize(1);
+        Page<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId(), PageRequest.of(0, 10));
+        assertThat(notifications.getContent()).hasSize(1);
     }
 
     @Test
@@ -89,10 +91,11 @@ class NotificationServiceTest {
                 post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림2");
 
         // when
-        List<NotificationResponse> result = notificationService.getMyNotifications(receiver.getId());
+        Page<NotificationResponse> result = notificationService.getMyNotifications(receiver.getId(), PageRequest.of(0, 10));
 
         // then
-        assertThat(result).hasSize(2);
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getTotalElements()).isEqualTo(2);
     }
 
     @Test
@@ -101,8 +104,8 @@ class NotificationServiceTest {
         // given
         notificationService.notify(receiver, Notification.NotificationType.COMMENT,
                 post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림");
-        List<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId());
-        Long notificationId = notifications.get(0).getId();
+        Page<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId(), PageRequest.of(0, 10));
+        Long notificationId = notifications.getContent().get(0).getId();
 
         // when
         notificationService.markAsRead(notificationId, receiver.getId());
@@ -141,8 +144,8 @@ class NotificationServiceTest {
                 post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "본인 알림");
 
         // then
-        List<NotificationResponse> notifications = notificationService.getMyNotifications(actor.getId());
-        assertThat(notifications).isEmpty();
+        Page<NotificationResponse> notifications = notificationService.getMyNotifications(actor.getId(), PageRequest.of(0, 10));
+        assertThat(notifications.getContent()).isEmpty();
     }
 
     @Test
@@ -157,8 +160,8 @@ class NotificationServiceTest {
                 post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "좋아요 알림");
 
         // then
-        List<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId());
-        assertThat(notifications).hasSize(1);
+        Page<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId(), PageRequest.of(0, 10));
+        assertThat(notifications.getContent()).hasSize(1);
     }
 
     @Test
@@ -167,11 +170,74 @@ class NotificationServiceTest {
         // given
         notificationService.notify(receiver, Notification.NotificationType.COMMENT,
                 post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림");
-        List<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId());
-        Long notificationId = notifications.get(0).getId();
+        Page<NotificationResponse> notifications = notificationService.getMyNotifications(receiver.getId(), PageRequest.of(0, 10));
+        Long notificationId = notifications.getContent().get(0).getId();
 
         // when & then
         assertThatThrownBy(() -> notificationService.markAsRead(notificationId, actor.getId()))
                 .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    @DisplayName("알림 페이징 - 첫 페이지 size만큼 제한")
+    void getMyNotifications_firstPage_limitedByPageSize() {
+        // given: 알림 15개 생성
+        for (int i = 0; i < 15; i++) {
+            notificationService.notify(receiver, Notification.NotificationType.COMMENT,
+                    post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림" + i);
+        }
+
+        // when
+        Page<NotificationResponse> result = notificationService.getMyNotifications(receiver.getId(), PageRequest.of(0, 10));
+
+        // then
+        assertThat(result.getContent()).hasSize(10);
+        assertThat(result.getTotalElements()).isEqualTo(15);
+        assertThat(result.getTotalPages()).isEqualTo(2);
+        assertThat(result.hasNext()).isTrue();
+    }
+
+    @Test
+    @DisplayName("알림 페이징 - 두 번째 페이지")
+    void getMyNotifications_secondPage() {
+        // given: 알림 15개 생성
+        for (int i = 0; i < 15; i++) {
+            notificationService.notify(receiver, Notification.NotificationType.COMMENT,
+                    post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림" + i);
+        }
+
+        // when
+        Page<NotificationResponse> result = notificationService.getMyNotifications(receiver.getId(), PageRequest.of(1, 10));
+
+        // then
+        assertThat(result.getContent()).hasSize(5);
+        assertThat(result.getNumber()).isEqualTo(1);
+        assertThat(result.hasNext()).isFalse();
+    }
+
+    @Test
+    @DisplayName("알림 페이징 - 전체 조회 및 페이지 메타데이터")
+    void getMyNotifications_pageMetadata() {
+        // given
+        notificationService.notify(receiver, Notification.NotificationType.COMMENT,
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "첫번째");
+        notificationService.notify(receiver, Notification.NotificationType.REPLY,
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "두번째");
+        notificationService.notify(receiver, Notification.NotificationType.MENTION,
+                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "세번째");
+
+        // when
+        Page<NotificationResponse> result = notificationService.getMyNotifications(receiver.getId(), PageRequest.of(0, 10));
+
+        // then
+        assertThat(result.getContent()).hasSize(3);
+        assertThat(result.getContent())
+                .extracting(NotificationResponse::getMessage)
+                .containsExactlyInAnyOrder("첫번째", "두번째", "세번째");
+        assertThat(result.getTotalElements()).isEqualTo(3);
+        assertThat(result.getTotalPages()).isEqualTo(1);
+        assertThat(result.hasNext()).isFalse();
+        assertThat(result.isFirst()).isTrue();
+        assertThat(result.isLast()).isTrue();
     }
 }

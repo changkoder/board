@@ -1336,6 +1336,127 @@ a:hover {
   line-height: 1;
 }
 
+/* === 알림 드롭다운 === */
+.nav-notification-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 340px;
+  max-height: 480px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.notification-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.95rem;
+}
+
+.notification-dropdown-mark-all {
+  font-size: 0.78rem;
+  padding: 0;
+}
+
+.notification-dropdown-body {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 380px;
+}
+
+.notification-dropdown-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.notification-dropdown-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notification-dropdown-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.15s;
+}
+
+.notification-dropdown-content {
+  min-width: 0;
+}
+
+.notification-dropdown-content .notification-dropdown-message {
+  overflow-wrap: anywhere;
+}
+
+.notification-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.notification-dropdown-item:hover {
+  background: #f8fafc;
+}
+
+.notification-dropdown-item.notification-unread {
+  background: #eff6ff;
+}
+
+.notification-dropdown-item.notification-unread:hover {
+  background: #dbeafe;
+}
+
+.notification-dropdown-message {
+  margin: 0 0 4px;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.notification-dropdown-date {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.notification-dropdown-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  background: #fafafa;
+}
+
+.notification-dropdown-footer .btn-link {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 0.88rem;
+  padding: 4px 8px;
+}
+
+.notification-dropdown-footer .btn-link:hover {
+  text-decoration: underline;
+}
+
 /* === 공지글 하이라이트 === */
 .notice-row {
   background: #fffbeb;

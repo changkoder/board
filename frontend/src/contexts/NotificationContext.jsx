@@ -14,10 +14,9 @@ export function NotificationProvider({ children }) {
       return;
     }
     notificationApi
-      .getAll()
+      .getUnreadCount()
       .then((res) => {
-        const count = res.data.data.filter((n) => !n.read).length;
-        setUnreadCount(count);
+        setUnreadCount(res.data.data);
       })
       .catch(() => setUnreadCount(0));
   }, [isAuthenticated]);

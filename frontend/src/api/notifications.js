@@ -1,8 +1,12 @@
 import client from './client';
 
 export const notificationApi = {
-  getAll() {
-    return client.get('/notifications');
+  getAll(page = 0, size = 10) {
+    return client.get('/notifications', { params: { page, size } });
+  },
+
+  getUnreadCount() {
+    return client.get('/notifications/unread-count');
   },
 
   markAsRead(notificationId) {

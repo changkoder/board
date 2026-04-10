@@ -7,10 +7,10 @@ import com.project.board.domain.user.entity.User;
 import com.project.board.global.exception.CustomException;
 import com.project.board.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static com.project.board.domain.notification.entity.Notification.*;
 
@@ -50,11 +50,13 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    public List<NotificationResponse> getMyNotifications(Long userId){
-        List<Notification> notifications = notificationRepository.findByUserId(userId);
-        return notifications.stream()
-                .map(notification -> NotificationResponse.from(notification))
-                .toList();
+    public Page<NotificationResponse> getMyNotifications(Long userId, Pageable pageable) {
+        return notificationRepository.findByUserId(userId, pageable)
+                .map(NotificationResponse::from);
+    }
+
+    public long countUnread(Long userId) {
+        return notificationRepository.countUnreadByUserId(userId);
     }
 
     @Transactional

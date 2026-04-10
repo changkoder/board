@@ -1,48 +1,61 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { notificationApi } from '../api/notifications';
 import { useToast } from '../contexts/ToastContext';
 import { useNotification } from '../contexts/NotificationContext';
-import Pagination from '../components/Pagination';
 
-export default function NotificationPage() {
-  const [notifications, setNotifications] = useState([]);
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(true);
+export default function NotificationDropdown({ open, onClose }) {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { refreshCount, unreadCount } = useNotification();
+  const panelRef = useRef(null);
 
-  const fetchNotifications = () => {
+  const fetchItems = () => {
     setLoading(true);
     notificationApi
-      .getAll(page, 10)
+      .getAll(0, 10)
       .then((res) => {
-        setNotifications(res.data.data.content);
-        setTotalPages(res.data.data.totalPages);
+        setItems(res.data.data.content);
         setError(false);
       })
       .catch(() => {
-        setNotifications([]);
-        setTotalPages(0);
+        setItems([]);
         setError(true);
       })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    fetchNotifications();
+    if (!open) return;
+    fetchItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [open]);
 
-  const handleClick = async (noti) => {
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e) => {
+      // 토글 버튼 클릭은 Header에서 처리되므로 외부 클릭에서 제외
+      if (e.target.closest('.nav-notification')) return;
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const handleContentClick = async (noti) => {
     try {
       if (!noti.read) {
         await notificationApi.markAsRead(noti.id);
         refreshCount();
       }
+      onClose();
       if (noti.postId) {
         navigate(`/posts/${noti.postId}`);
       }
@@ -58,6 +71,7 @@ export default function NotificationPage() {
         await notificationApi.markAsRead(noti.id);
         refreshCount();
       }
+      onClose();
       navigate(`/users/${noti.actorId}`);
     } catch (err) {
       showToast(err.response?.data?.message || '알림 처리에 실패했습니다.', 'error');
@@ -67,41 +81,41 @@ export default function NotificationPage() {
   const handleMarkAllAsRead = async () => {
     try {
       await notificationApi.markAllAsRead();
-      fetchNotifications();
       refreshCount();
+      fetchItems();
     } catch (err) {
       showToast(err.response?.data?.message || '전체 읽음 처리에 실패했습니다.', 'error');
     }
   };
 
-  if (loading) return <div className="loading">로딩 중...</div>;
+  const handleViewAll = () => {
+    onClose();
+    navigate('/notifications');
+  };
 
   return (
-    <div className="page">
-      <div className="page-header-row">
-        <h1>알림</h1>
+    <div className="notification-dropdown" ref={panelRef}>
+      <div className="notification-dropdown-header">
+        <strong>알림</strong>
         {unreadCount > 0 && (
-          <button onClick={handleMarkAllAsRead} className="btn btn-sm">
+          <button className="btn-link notification-dropdown-mark-all" onClick={handleMarkAllAsRead}>
             전체 읽음
           </button>
         )}
       </div>
-
-      {error ? (
-        <div className="error-state">
-          <p>서버에 문제가 발생했습니다.</p>
-          <p>잠시 후 다시 시도해주세요.</p>
-          <button onClick={fetchNotifications} className="btn btn-primary" style={{ marginTop: '16px' }}>다시 시도</button>
-        </div>
-      ) : notifications.length === 0 ? (
-        <p className="empty">알림이 없습니다.</p>
-      ) : (
-        <>
-          <ul className="notification-list">
-            {notifications.map((noti) => (
+      <div className="notification-dropdown-body">
+        {loading ? (
+          <div className="notification-dropdown-empty">로딩 중...</div>
+        ) : error ? (
+          <div className="notification-dropdown-empty">불러오지 못했습니다.</div>
+        ) : items.length === 0 ? (
+          <div className="notification-dropdown-empty">알림이 없습니다.</div>
+        ) : (
+          <ul className="notification-dropdown-list">
+            {items.map((noti) => (
               <li
                 key={noti.id}
-                className={`notification-item ${noti.read ? '' : 'notification-unread'}`}
+                className={`notification-dropdown-item ${noti.read ? '' : 'notification-unread'}`}
               >
                 <span
                   className="inline-avatar"
@@ -116,19 +130,26 @@ export default function NotificationPage() {
                     </span>
                   )}
                 </span>
-                <div className="notification-content" onClick={() => handleClick(noti)} style={{ cursor: 'pointer', flex: 1 }}>
-                  <p className="notification-message">{noti.message}</p>
-                  <span className="notification-date">
+                <div
+                  className="notification-dropdown-content"
+                  onClick={() => handleContentClick(noti)}
+                  style={{ cursor: 'pointer', flex: 1, minWidth: 0 }}
+                >
+                  <p className="notification-dropdown-message">{noti.message}</p>
+                  <span className="notification-dropdown-date">
                     {new Date(noti.createdAt).toLocaleString()}
                   </span>
                 </div>
               </li>
             ))}
           </ul>
-
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
-        </>
-      )}
+        )}
+      </div>
+      <div className="notification-dropdown-footer">
+        <button className="btn-link" onClick={handleViewAll}>
+          모두 보기
+        </button>
+      </div>
     </div>
   );
 }
