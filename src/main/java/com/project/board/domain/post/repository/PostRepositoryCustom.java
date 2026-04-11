@@ -27,5 +27,7 @@ public interface PostRepositoryCustom {
     List<Post> findNotices();
 
     Optional<Post> findByIdWithDetails(Long id);
+
+    Optional<Post> findByIdWithDetailsIncludingHidden(Long id);
 }
 

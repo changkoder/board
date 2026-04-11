@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CommentRepositoryCustom {
     Page<Comment> findByUserIdActive(Long userId, Pageable pageable);
@@ -12,4 +13,6 @@ public interface CommentRepositoryCustom {
     Page<Comment> findHiddenComments(Pageable pageable);
 
     List<Comment> findAllByPostId(Long postId);
+
+    Optional<Comment> findByIdWithDetailsIncludingHidden(Long id);
 }

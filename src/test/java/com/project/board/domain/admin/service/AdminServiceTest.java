@@ -2,16 +2,21 @@ package com.project.board.domain.admin.service;
 
 import com.project.board.domain.category.entity.Category;
 import com.project.board.domain.category.repository.CategoryRepository;
+import com.project.board.domain.comment.dto.AdminCommentDetailResponse;
 import com.project.board.domain.comment.dto.CommentResponse;
 import com.project.board.domain.comment.entity.Comment;
 import com.project.board.domain.comment.repository.CommentRepository;
+import com.project.board.domain.post.dto.AdminPostDetailResponse;
 import com.project.board.domain.post.dto.PostListResponse;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
+import com.project.board.domain.report.entity.Report;
+import com.project.board.domain.report.repository.ReportRepository;
 import com.project.board.domain.user.dto.UserResponse;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.global.exception.CustomException;
+import com.project.board.global.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +44,8 @@ class AdminServiceTest {
     private CommentRepository commentRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private ReportRepository reportRepository;
 
     private User user;
     private Category category;
@@ -228,5 +235,122 @@ class AdminServiceTest {
         // when & then
         assertThatThrownBy(() -> adminService.blockUser(user.getId()))
                 .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    @DisplayName("관리자 게시글 상세 조회 - 숨김 게시글도 조회된다")
+    void getPostDetail_hiddenPost_success() {
+        // given
+        adminService.hidePost(post.getId());
+
+        // when
+        AdminPostDetailResponse response = adminService.getPostDetail(post.getId());
+
+        // then
+        assertThat(response.getId()).isEqualTo(post.getId());
+        assertThat(response.isHidden()).isTrue();
+        assertThat(response.getReports()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("관리자 게시글 상세 조회 - 신고 내역이 함께 반환된다")
+    void getPostDetail_withReports_success() {
+        // given
+        User reporter = userRepository.save(User.builder()
+                .email("reporter@test.com")
+                .password("password")
+                .nickname("reporter")
+                .build());
+
+        reportRepository.save(Report.builder()
+                .user(reporter)
+                .post(post)
+                .reason(Report.ReportReason.ABUSE)
+                .build());
+
+        // when
+        AdminPostDetailResponse response = adminService.getPostDetail(post.getId());
+
+        // then
+        assertThat(response.getReports()).hasSize(1);
+        assertThat(response.getReports().get(0).getReporterNickname()).isEqualTo("reporter");
+        assertThat(response.getReports().get(0).getReason()).isEqualTo(Report.ReportReason.ABUSE);
+        assertThat(response.getReports().get(0).getReasonLabel()).isEqualTo("욕설/비하");
+    }
+
+    @Test
+    @DisplayName("관리자 게시글 상세 조회 - 존재하지 않는 게시글이면 예외")
+    void getPostDetail_notFound_throwsException() {
+        assertThatThrownBy(() -> adminService.getPostDetail(9999L))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.POST_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("관리자 댓글 상세 조회 - 숨김 댓글도 조회된다")
+    void getCommentDetail_hiddenComment_success() {
+        // given
+        adminService.hideComment(comment.getId());
+
+        // when
+        AdminCommentDetailResponse response = adminService.getCommentDetail(comment.getId());
+
+        // then
+        assertThat(response.getId()).isEqualTo(comment.getId());
+        assertThat(response.isHidden()).isTrue();
+        assertThat(response.getContent()).isEqualTo(comment.getContent());
+        assertThat(response.getAuthorNickname()).isEqualTo("tester");
+    }
+
+    @Test
+    @DisplayName("관리자 댓글 상세 조회 - 대댓글(parent 있음)도 조회된다")
+    void getCommentDetail_reply_success() {
+        // given
+        Comment reply = commentRepository.save(Comment.builder()
+                .post(post)
+                .user(user)
+                .parent(comment)
+                .content("대댓글 내용")
+                .build());
+
+        // when
+        AdminCommentDetailResponse response = adminService.getCommentDetail(reply.getId());
+
+        // then
+        assertThat(response.getId()).isEqualTo(reply.getId());
+        assertThat(response.getContent()).isEqualTo("대댓글 내용");
+    }
+
+    @Test
+    @DisplayName("관리자 댓글 상세 조회 - 신고 내역이 함께 반환된다")
+    void getCommentDetail_withReports_success() {
+        // given
+        User reporter = userRepository.save(User.builder()
+                .email("reporter@test.com")
+                .password("password")
+                .nickname("reporter")
+                .build());
+
+        reportRepository.save(Report.builder()
+                .user(reporter)
+                .comment(comment)
+                .reason(Report.ReportReason.SPAM)
+                .build());
+
+        // when
+        AdminCommentDetailResponse response = adminService.getCommentDetail(comment.getId());
+
+        // then
+        assertThat(response.getReports()).hasSize(1);
+        assertThat(response.getReports().get(0).getReason()).isEqualTo(Report.ReportReason.SPAM);
+        assertThat(response.getReports().get(0).getReasonLabel()).isEqualTo("스팸/광고");
+    }
+
+    @Test
+    @DisplayName("관리자 댓글 상세 조회 - 존재하지 않는 댓글이면 예외")
+    void getCommentDetail_notFound_throwsException() {
+        assertThatThrownBy(() -> adminService.getCommentDetail(9999L))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.COMMENT_NOT_FOUND.getMessage());
     }
 }

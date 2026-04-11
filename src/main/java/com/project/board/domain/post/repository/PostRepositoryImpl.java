@@ -245,4 +245,16 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
         return Optional.ofNullable(result);
     }
+
+    @Override
+    public Optional<Post> findByIdWithDetailsIncludingHidden(Long id) {
+        Post result = queryFactory
+                .selectFrom(post)
+                .join(post.user).fetchJoin()
+                .join(post.category).fetchJoin()
+                .where(post.id.eq(id))
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
 }

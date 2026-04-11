@@ -1,7 +1,9 @@
 package com.project.board.domain.admin.controller;
 
 import com.project.board.domain.admin.service.AdminService;
+import com.project.board.domain.comment.dto.AdminCommentDetailResponse;
 import com.project.board.domain.comment.dto.CommentResponse;
+import com.project.board.domain.post.dto.AdminPostDetailResponse;
 import com.project.board.domain.post.dto.PostListResponse;
 import com.project.board.domain.user.dto.UserResponse;
 import com.project.board.global.common.ApiResponse;
@@ -28,6 +30,18 @@ public class AdminController {
     @GetMapping("/comments/hidden")
     public ResponseEntity<ApiResponse<Page<CommentResponse>>> getHiddenComments(Pageable pageable) {
         Page<CommentResponse> response = adminService.getHiddenComments(pageable);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<ApiResponse<AdminPostDetailResponse>> getPostDetail(@PathVariable Long postId) {
+        AdminPostDetailResponse response = adminService.getPostDetail(postId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/comments/{commentId}")
+    public ResponseEntity<ApiResponse<AdminCommentDetailResponse>> getCommentDetail(@PathVariable Long commentId) {
+        AdminCommentDetailResponse response = adminService.getCommentDetail(commentId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

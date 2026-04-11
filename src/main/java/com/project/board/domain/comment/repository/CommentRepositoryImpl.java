@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.board.domain.comment.entity.QComment.comment;
 
@@ -72,6 +73,17 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, () -> countQuery.fetchOne());
+    }
+
+    @Override
+    public Optional<Comment> findByIdWithDetailsIncludingHidden(Long id) {
+        Comment result = queryFactory
+                .selectFrom(comment)
+                .join(comment.user).fetchJoin()
+                .where(comment.id.eq(id))
+                .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 
     @Override

@@ -1,11 +1,15 @@
 package com.project.board.domain.admin.service;
 
+import com.project.board.domain.comment.dto.AdminCommentDetailResponse;
 import com.project.board.domain.comment.dto.CommentResponse;
 import com.project.board.domain.comment.entity.Comment;
 import com.project.board.domain.comment.repository.CommentRepository;
+import com.project.board.domain.post.dto.AdminPostDetailResponse;
 import com.project.board.domain.post.dto.PostListResponse;
 import com.project.board.domain.post.entity.Post;
 import com.project.board.domain.post.repository.PostRepository;
+import com.project.board.domain.report.dto.ReportSummaryResponse;
+import com.project.board.domain.report.repository.ReportRepository;
 import com.project.board.domain.user.dto.UserResponse;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
@@ -17,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,17 +32,42 @@ public class AdminService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final ReportRepository reportRepository;
 
     // 숨김 게시글 목록
     public Page<PostListResponse> getHiddenPosts(Pageable pageable) {
         return postRepository.findHiddenPosts(pageable)
-                .map(PostListResponse::from);
+                .map(post -> PostListResponse.from(post));
     }
 
     // 숨김 댓글 목록
     public Page<CommentResponse> getHiddenComments(Pageable pageable) {
         return commentRepository.findHiddenComments(pageable)
-                .map(CommentResponse::from);
+                .map(comment -> CommentResponse.from(comment));
+    }
+
+    // 관리자 게시글 상세 (숨김/삭제 여부 무관 + 신고 내역 포함)
+    public AdminPostDetailResponse getPostDetail(Long postId) {
+        Post post = postRepository.findByIdWithDetailsIncludingHidden(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        List<ReportSummaryResponse> reports = reportRepository.findAllByPostIdWithReporter(postId).stream()
+                .map(report -> ReportSummaryResponse.from(report))
+                .toList();
+
+        return AdminPostDetailResponse.from(post, reports);
+    }
+
+    // 관리자 댓글 상세 (숨김/삭제 여부 무관 + 신고 내역 포함)
+    public AdminCommentDetailResponse getCommentDetail(Long commentId) {
+        Comment comment = commentRepository.findByIdWithDetailsIncludingHidden(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        List<ReportSummaryResponse> reports = reportRepository.findAllByCommentIdWithReporter(commentId).stream()
+                .map(report -> ReportSummaryResponse.from(report))
+                .toList();
+
+        return AdminCommentDetailResponse.from(comment, reports);
     }
 
     // 게시글 숨기기

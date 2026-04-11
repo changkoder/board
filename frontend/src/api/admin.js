@@ -9,6 +9,14 @@ export const adminApi = {
     return client.get('/admin/comments/hidden', { params: { page, size } });
   },
 
+  getPostDetail(postId) {
+    return client.get(`/admin/posts/${postId}`);
+  },
+
+  getCommentDetail(commentId) {
+    return client.get(`/admin/comments/${commentId}`);
+  },
+
   hidePost(postId) {
     return client.patch(`/admin/posts/${postId}/hide`);
   },

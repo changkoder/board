@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { adminApi } from '../api/admin';
 import { useAuth } from '../contexts/AuthContext';
 import Pagination from '../components/Pagination';
+import AdminDetailModal from '../components/AdminDetailModal';
 
 const TABS = [
   { key: 'hiddenPosts', label: '숨김 게시글' },
@@ -19,6 +20,7 @@ export default function AdminPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [modalState, setModalState] = useState(null);
 
   const isPaginatedTab = activeTab !== 'blockedUsers';
 
@@ -72,6 +74,7 @@ export default function AdminPage() {
   const handleRestorePost = async (postId) => {
     try {
       await adminApi.restorePost(postId);
+      setModalState(null);
       fetchData();
     } catch (err) {
       alert(err.response?.data?.message || '복원에 실패했습니다.');
@@ -79,9 +82,9 @@ export default function AdminPage() {
   };
 
   const handleDeletePost = async (postId) => {
-    if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await adminApi.deletePost(postId);
+      setModalState(null);
       fetchData();
     } catch (err) {
       alert(err.response?.data?.message || '삭제에 실패했습니다.');
@@ -91,6 +94,7 @@ export default function AdminPage() {
   const handleRestoreComment = async (commentId) => {
     try {
       await adminApi.restoreComment(commentId);
+      setModalState(null);
       fetchData();
     } catch (err) {
       alert(err.response?.data?.message || '복원에 실패했습니다.');
@@ -98,9 +102,9 @@ export default function AdminPage() {
   };
 
   const handleDeleteComment = async (commentId) => {
-    if (!window.confirm('정말 삭제하시겠습니까?')) return;
     try {
       await adminApi.deleteComment(commentId);
+      setModalState(null);
       fetchData();
     } catch (err) {
       alert(err.response?.data?.message || '삭제에 실패했습니다.');
@@ -155,16 +159,34 @@ export default function AdminPage() {
           </thead>
           <tbody>
             {data.map((post) => (
-              <tr key={post.id}>
+              <tr
+                key={post.id}
+                onClick={() => setModalState({ type: 'post', id: post.id })}
+                style={{ cursor: 'pointer' }}
+              >
                 <td>{post.id}</td>
                 <td>{post.title}</td>
                 <td>{post.authorNickname}</td>
                 <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                 <td>
-                  <button onClick={() => handleRestorePost(post.id)} className="btn btn-sm">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRestorePost(post.id);
+                    }}
+                    className="btn btn-sm"
+                  >
                     복원
                   </button>{' '}
-                  <button onClick={() => handleDeletePost(post.id)} className="btn btn-sm btn-danger">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm('정말 삭제하시겠습니까?')) {
+                        handleDeletePost(post.id);
+                      }
+                    }}
+                    className="btn btn-sm btn-danger"
+                  >
                     삭제
                   </button>
                 </td>
@@ -185,16 +207,34 @@ export default function AdminPage() {
           </thead>
           <tbody>
             {data.map((comment) => (
-              <tr key={comment.id}>
+              <tr
+                key={comment.id}
+                onClick={() => setModalState({ type: 'comment', id: comment.id })}
+                style={{ cursor: 'pointer' }}
+              >
                 <td>{comment.id}</td>
                 <td>{comment.content}</td>
                 <td>{comment.authorNickname}</td>
                 <td>{new Date(comment.createdAt).toLocaleDateString()}</td>
                 <td>
-                  <button onClick={() => handleRestoreComment(comment.id)} className="btn btn-sm">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRestoreComment(comment.id);
+                    }}
+                    className="btn btn-sm"
+                  >
                     복원
                   </button>{' '}
-                  <button onClick={() => handleDeleteComment(comment.id)} className="btn btn-sm btn-danger">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm('정말 삭제하시겠습니까?')) {
+                        handleDeleteComment(comment.id);
+                      }
+                    }}
+                    className="btn btn-sm btn-danger"
+                  >
                     삭제
                   </button>
                 </td>
@@ -231,6 +271,16 @@ export default function AdminPage() {
 
       {isPaginatedTab && (
         <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      )}
+
+      {modalState && (
+        <AdminDetailModal
+          type={modalState.type}
+          targetId={modalState.id}
+          onClose={() => setModalState(null)}
+          onRestore={modalState.type === 'post' ? handleRestorePost : handleRestoreComment}
+          onDelete={modalState.type === 'post' ? handleDeletePost : handleDeleteComment}
+        />
       )}
     </div>
   );

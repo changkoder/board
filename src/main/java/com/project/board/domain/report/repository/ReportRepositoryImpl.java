@@ -1,7 +1,10 @@
 package com.project.board.domain.report.repository;
 
+import com.project.board.domain.report.entity.Report;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 import static com.project.board.domain.report.entity.QReport.report;
 
@@ -54,5 +57,25 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                 .from(report)
                 .where(report.comment.id.eq(commentId))
                 .fetchOne();
+    }
+
+    @Override
+    public List<Report> findAllByPostIdWithReporter(Long postId) {
+        return queryFactory
+                .selectFrom(report)
+                .join(report.user).fetchJoin()
+                .where(report.post.id.eq(postId))
+                .orderBy(report.createdAt.desc())
+                .fetch();
+    }
+
+    @Override
+    public List<Report> findAllByCommentIdWithReporter(Long commentId) {
+        return queryFactory
+                .selectFrom(report)
+                .join(report.user).fetchJoin()
+                .where(report.comment.id.eq(commentId))
+                .orderBy(report.createdAt.desc())
+                .fetch();
     }
 }
