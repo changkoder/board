@@ -32,7 +32,7 @@ public class PostImage extends BaseEntity {
         this.imageOrder = imageOrder;
     }
 
-    public void setPost(Post post) {
+    void setPost(Post post) {
         this.post = post;
     }
 }

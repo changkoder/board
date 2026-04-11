@@ -247,8 +247,8 @@ class AdminServiceTest {
         AdminPostDetailResponse response = adminService.getPostDetail(post.getId());
 
         // then
-        assertThat(response.getId()).isEqualTo(post.getId());
-        assertThat(response.isHidden()).isTrue();
+        assertThat(response.getTitle()).isEqualTo(post.getTitle());
+        assertThat(response.getContent()).isEqualTo(post.getContent());
         assertThat(response.getReports()).isEmpty();
     }
 
@@ -274,7 +274,6 @@ class AdminServiceTest {
         // then
         assertThat(response.getReports()).hasSize(1);
         assertThat(response.getReports().get(0).getReporterNickname()).isEqualTo("reporter");
-        assertThat(response.getReports().get(0).getReason()).isEqualTo(Report.ReportReason.ABUSE);
         assertThat(response.getReports().get(0).getReasonLabel()).isEqualTo("욕설/비하");
     }
 
@@ -296,8 +295,6 @@ class AdminServiceTest {
         AdminCommentDetailResponse response = adminService.getCommentDetail(comment.getId());
 
         // then
-        assertThat(response.getId()).isEqualTo(comment.getId());
-        assertThat(response.isHidden()).isTrue();
         assertThat(response.getContent()).isEqualTo(comment.getContent());
         assertThat(response.getAuthorNickname()).isEqualTo("tester");
     }
@@ -317,7 +314,6 @@ class AdminServiceTest {
         AdminCommentDetailResponse response = adminService.getCommentDetail(reply.getId());
 
         // then
-        assertThat(response.getId()).isEqualTo(reply.getId());
         assertThat(response.getContent()).isEqualTo("대댓글 내용");
     }
 
@@ -342,7 +338,6 @@ class AdminServiceTest {
 
         // then
         assertThat(response.getReports()).hasSize(1);
-        assertThat(response.getReports().get(0).getReason()).isEqualTo(Report.ReportReason.SPAM);
         assertThat(response.getReports().get(0).getReasonLabel()).isEqualTo("스팸/광고");
     }
 

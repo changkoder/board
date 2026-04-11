@@ -11,9 +11,7 @@ import java.time.LocalDateTime;
 public class NotificationResponse {
 
     private Long id;
-    private String type;
     private Long postId;
-    private Long commentId;
     private Long actorId;
     private String actorNickname;
     private String actorProfileImg;
@@ -24,9 +22,7 @@ public class NotificationResponse {
     public static NotificationResponse from(Notification notification) {
         return NotificationResponse.builder()
                 .id(notification.getId())
-                .type(notification.getType().name())
                 .postId(notification.getPostId())
-                .commentId(notification.getCommentId())
                 .actorId(notification.getActorId())
                 .actorNickname(notification.getActorNickname())
                 .actorProfileImg(notification.getActorProfileImg())

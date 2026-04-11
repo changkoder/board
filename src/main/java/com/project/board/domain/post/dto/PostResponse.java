@@ -23,7 +23,6 @@ public class PostResponse {
     private int commentCount;
     private List<String> imageUrls;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private boolean bookmarked;
     private boolean liked;
 
@@ -50,7 +49,6 @@ public class PostResponse {
                         .map(image -> image.getImageUrl())
                         .toList())
                 .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
                 .bookmarked(bookmarked)
                 .liked(liked)
                 .build();

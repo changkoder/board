@@ -22,6 +22,7 @@ export default function PostEditPage() {
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [imageUrls, setImageUrls] = useState([]);
+  const [imageNames, setImageNames] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,7 +38,10 @@ export default function PostEditPage() {
         const post = res.data.data;
         setTitle(post.title);
         setContent(post.content);
-        setImageUrls(post.imageUrls || []);
+        const existingUrls = post.imageUrls || [];
+        setImageUrls(existingUrls);
+        // 기존 이미지는 원본 파일명 정보가 없음 (업로드 시점에만 전달됨)
+        setImageNames(existingUrls.map(() => null));
         // 카테고리 이름으로 매칭 (공지 포함 전체 목록에서 찾기)
         const cat = ALL_CATEGORIES.find((c) => c.name === post.categoryName);
         if (cat) setCategoryId(String(cat.id));
@@ -61,7 +65,9 @@ export default function PostEditPage() {
     try {
       const res = await imageApi.upload(files);
       const urls = res.data.data.map((img) => img.imageUrl);
+      const names = res.data.data.map((img) => img.originalFileName);
       setImageUrls((prev) => [...prev, ...urls]);
+      setImageNames((prev) => [...prev, ...names]);
     } catch (err) {
       showToast(err.response?.data?.message || '이미지 업로드에 실패했습니다.', 'error');
     } finally {
@@ -72,6 +78,7 @@ export default function PostEditPage() {
 
   const handleRemoveImage = (index) => {
     setImageUrls((prev) => prev.filter((_, i) => i !== index));
+    setImageNames((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -164,7 +171,7 @@ export default function PostEditPage() {
             <div className="image-preview-list">
               {imageUrls.map((url, index) => (
                 <div key={index} className="image-preview-item">
-                  <img src={url} alt={`첨부 이미지 ${index + 1}`} />
+                  <img src={url} alt={imageNames[index] || `첨부 이미지 ${index + 1}`} title={imageNames[index]} />
                   <button
                     type="button"
                     onClick={() => handleRemoveImage(index)}

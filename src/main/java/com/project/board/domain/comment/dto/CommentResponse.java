@@ -17,7 +17,6 @@ public class CommentResponse {
     private String authorProfileImg;
     private int likeCount;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private boolean liked;
     private List<CommentResponse> children;
     private Long postId;
@@ -44,7 +43,6 @@ public class CommentResponse {
                 .likeCount(comment.getLikeCount())
                 .liked(liked)
                 .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
                 .postId(comment.getPost().getId())
                 .postTitle(comment.getPost().getTitle())
                 .children(children)

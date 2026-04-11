@@ -12,5 +12,5 @@ public interface NotificationRepositoryCustom {
 
     long markAllAsRead(Long userId);
 
-    boolean existsLikeNotification(Long receiverId, Long actorId, Long postId, Notification.NotificationType type);
+    boolean existsLikeNotification(Long receiverId, Long actorId, Long postId, Long commentId, Notification.NotificationType type);
 }

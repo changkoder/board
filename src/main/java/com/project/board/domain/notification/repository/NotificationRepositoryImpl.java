@@ -61,7 +61,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     }
 
     @Override
-    public boolean existsLikeNotification(Long receiverId, Long actorId, Long postId, Notification.NotificationType type) {
+    public boolean existsLikeNotification(Long receiverId, Long actorId, Long postId, Long commentId, Notification.NotificationType type) {
         Integer result = queryFactory
                 .selectOne()
                 .from(notification)
@@ -69,6 +69,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
                         notification.user.id.eq(receiverId),
                         notification.actorId.eq(actorId),
                         notification.postId.eq(postId),
+                        commentId != null ? notification.commentId.eq(commentId) : notification.commentId.isNull(),
                         notification.type.eq(type)
                 )
                 .fetchFirst();

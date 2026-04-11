@@ -31,7 +31,7 @@ public class NotificationService {
 
         //알림 중복 방지
         if (type == NotificationType.POST_LIKE || type == NotificationType.COMMENT_LIKE) {
-            if (notificationRepository.existsLikeNotification(receiver.getId(), actorId, postId, type)) {
+            if (notificationRepository.existsLikeNotification(receiver.getId(), actorId, postId, commentId, type)) {
                 return;
             }
         }

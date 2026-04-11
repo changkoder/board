@@ -16,6 +16,7 @@ export default function PostCreatePage() {
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [imageUrls, setImageUrls] = useState([]);
+  const [imageNames, setImageNames] = useState([]);
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -35,7 +36,9 @@ export default function PostCreatePage() {
     try {
       const res = await imageApi.upload(files);
       const urls = res.data.data.map((img) => img.imageUrl);
+      const names = res.data.data.map((img) => img.originalFileName);
       setImageUrls((prev) => [...prev, ...urls]);
+      setImageNames((prev) => [...prev, ...names]);
     } catch (err) {
       showToast(err.response?.data?.message || '이미지 업로드에 실패했습니다.', 'error');
     } finally {
@@ -46,6 +49,7 @@ export default function PostCreatePage() {
 
   const handleRemoveImage = (index) => {
     setImageUrls((prev) => prev.filter((_, i) => i !== index));
+    setImageNames((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -119,7 +123,7 @@ export default function PostCreatePage() {
             <div className="image-preview-list">
               {imageUrls.map((url, index) => (
                 <div key={index} className="image-preview-item">
-                  <img src={url} alt={`첨부 이미지 ${index + 1}`} />
+                  <img src={url} alt={imageNames[index] || `첨부 이미지 ${index + 1}`} title={imageNames[index]} />
                   <button
                     type="button"
                     onClick={() => handleRemoveImage(index)}

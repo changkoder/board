@@ -161,6 +161,10 @@ public class PostService {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
 
+        if (category.getName().equals("공지") && post.getUser().getRole() != User.Role.ADMIN) {
+            throw new CustomException(ErrorCode.NOTICE_ADMIN_ONLY);
+        }
+
         post.update(request.getTitle(), request.getContent(), category);
 
         post.clearImages();

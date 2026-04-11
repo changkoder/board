@@ -6,14 +6,14 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+import static com.project.board.domain.report.entity.Report.*;
+
 @Getter
 @Builder
 public class ReportSummaryResponse {
 
     private Long id;
-    private Long reporterId;
     private String reporterNickname;
-    private Report.ReportReason reason;
     private String reasonLabel;
     private LocalDateTime createdAt;
 
@@ -22,15 +22,13 @@ public class ReportSummaryResponse {
 
         return ReportSummaryResponse.builder()
                 .id(report.getId())
-                .reporterId(report.getUser().getId())
                 .reporterNickname(nickname)
-                .reason(report.getReason())
                 .reasonLabel(toLabel(report.getReason()))
                 .createdAt(report.getCreatedAt())
                 .build();
     }
 
-    private static String toLabel(Report.ReportReason reason) {
+    private static String toLabel(ReportReason reason) {
         return switch (reason) {
             case SPAM -> "스팸/광고";
             case ABUSE -> "욕설/비하";
