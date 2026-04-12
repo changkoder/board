@@ -2,6 +2,7 @@ package com.project.board.domain.image.service;
 
 import com.project.board.domain.image.dto.ImageUploadResponse;
 import com.project.board.global.exception.CustomException;
+import com.project.board.global.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,8 @@ class ImageServiceTest {
 
         // when & then
         assertThatThrownBy(() -> imageService.upload(file))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.FILE_IS_EMPTY.getMessage());
     }
 
     @Test
@@ -52,7 +54,8 @@ class ImageServiceTest {
 
         // when & then
         assertThatThrownBy(() -> imageService.upload(file))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.INVALID_FILE_TYPE.getMessage());
     }
 
     @Test
@@ -65,6 +68,7 @@ class ImageServiceTest {
 
         // when & then
         assertThatThrownBy(() -> imageService.upload(file))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.FILE_SIZE_EXCEEDED.getMessage());
     }
 }

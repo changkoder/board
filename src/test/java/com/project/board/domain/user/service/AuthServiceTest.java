@@ -4,6 +4,7 @@ import com.project.board.domain.user.dto.*;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.global.exception.CustomException;
+import com.project.board.global.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,8 @@ class AuthServiceTest {
 
         // when & then
         assertThatThrownBy(() -> authService.signup(duplicate))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.DUPLICATE_EMAIL.getMessage());
     }
 
     @Test
@@ -74,7 +76,8 @@ class AuthServiceTest {
 
         // when & then
         assertThatThrownBy(() -> authService.login(loginRequest))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.INVALID_PASSWORD.getMessage());
     }
 
 
@@ -107,7 +110,8 @@ class AuthServiceTest {
 
         // when & then
         assertThatThrownBy(() -> authService.login(loginRequest))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.USER_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -122,7 +126,8 @@ class AuthServiceTest {
 
         // when & then
         assertThatThrownBy(() -> authService.login(loginRequest))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.USER_BLOCKED.getMessage());
     }
 
     @Test
@@ -137,7 +142,8 @@ class AuthServiceTest {
 
         // when & then
         assertThatThrownBy(() -> authService.login(loginRequest))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.USER_DELETED.getMessage());
     }
 
     @Test
@@ -161,7 +167,8 @@ class AuthServiceTest {
 
         // when & then
         assertThatThrownBy(() -> authService.refresh(refreshRequest))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());
     }
 
     @Test
@@ -173,7 +180,8 @@ class AuthServiceTest {
 
         // when & then
         assertThatThrownBy(() -> authService.signup(duplicate))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.DUPLICATE_NICKNAME.getMessage());
     }
 
     private SignupRequest createSignupRequest(String email, String password, String nickname) {

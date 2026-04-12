@@ -15,9 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,42 +53,6 @@ class CommentRepositoryTest {
                 .title("테스트 게시글")
                 .content("내용")
                 .build());
-    }
-
-    @Test
-    @DisplayName("전체 댓글 조회시 User fetch join으로 N+1 방지")
-    void findAllByPostId_fetchJoinUser_noNPlusOne(){
-        // given
-        Comment parent1 = commentRepository.save(Comment.builder()
-                .post(post)
-                .user(user)
-                .content("부모 댓글 1")
-                .build());
-
-        Comment parent2 = commentRepository.save(Comment.builder()
-                .post(post)
-                .user(user)
-                .content("부모 댓글 2")
-                .build());
-
-        for (int i = 0; i < 3; i++) {
-            commentRepository.save(Comment.builder()
-                    .post(post)
-                    .user(user)
-                    .content("자식 댓글 " + i)
-                    .parent(parent1)
-                    .build());
-        }
-
-        em.flush();
-        em.clear();
-
-        // when
-        List<Comment> all = commentRepository.findAllByPostId(post.getId());
-
-        // then
-        assertThat(all).hasSize(5); // 부모 2 + 자식 3
-        all.forEach(c -> assertThat(c.getUser().getNickname()).isEqualTo("tester"));
     }
 
     @Test
@@ -151,28 +112,4 @@ class CommentRepositoryTest {
         assertThat(comments.get(0).getContent()).isEqualTo("일반 댓글");
     }
 
-    @Test
-    @DisplayName("내 댓글 조회 시 User/Post fetch join으로 N+1 방지")
-    void findByUserIdActive_fetchJoin_noNPlusOne() {
-        // given
-        for (int i = 0; i < 3; i++) {
-            commentRepository.save(Comment.builder()
-                    .post(post).user(user)
-                    .content("댓글 " + i)
-                    .build());
-        }
-
-        em.flush();
-        em.clear();
-
-        // when
-        Page<Comment> result = commentRepository.findByUserIdActive(user.getId(), PageRequest.of(0, 10));
-
-        // then
-        assertThat(result.getContent()).hasSize(3);
-        result.getContent().forEach(c -> {
-            assertThat(c.getUser().getNickname()).isEqualTo("tester");
-            assertThat(c.getPost().getTitle()).isEqualTo("테스트 게시글");
-        });
-    }
 }

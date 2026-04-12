@@ -8,6 +8,7 @@ import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.global.exception.CustomException;
+import com.project.board.global.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -101,7 +102,8 @@ class PostServiceTest {
 
         // when & then
         assertThatThrownBy(() -> postService.update(post.getId(), otherUser.getId(), updateRequest))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.FORBIDDEN.getMessage());
     }
 
     @Test
@@ -119,7 +121,8 @@ class PostServiceTest {
 
         // when & then
         assertThatThrownBy(() -> postService.delete(post.getId(), otherUser.getId()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.FORBIDDEN.getMessage());
     }
 
     @Test
@@ -195,7 +198,8 @@ class PostServiceTest {
 
         // when & then
         assertThatThrownBy(() -> postService.findById(created.getId()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.POST_NOT_FOUND.getMessage());
     }
 
     @Test

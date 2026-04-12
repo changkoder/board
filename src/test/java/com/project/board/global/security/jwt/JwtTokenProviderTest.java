@@ -22,7 +22,6 @@ class JwtTokenProviderTest {
         String token = jwtTokenProvider.createAccessToken(1L, "USER");
         assertThat(token).isNotNull();
         assertThat(token.split("\\.")).hasSize(3);
-        System.out.println(token);
     }
 
     @Test

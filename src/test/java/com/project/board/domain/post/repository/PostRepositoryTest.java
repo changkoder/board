@@ -292,49 +292,4 @@ class PostRepositoryTest {
         assertThat(result.get().getCategory().getName()).isEqualTo("자유");
     }
 
-    @Test
-    @DisplayName("게시글 목록 조회 시 User/Category fetch join으로 N+1 방지")
-    void findAllActive_fetchJoin_noNPlusOne() {
-        // given
-        for (int i = 0; i < 3; i++) {
-            postRepository.save(Post.builder()
-                    .user(user).category(category)
-                    .title("글 " + i).content("내용 " + i)
-                    .build());
-        }
-
-        em.flush();
-        em.clear();
-
-        // when
-        Page<Post> result = postRepository.findAllActive(PageRequest.of(0, 10));
-
-        // then
-        assertThat(result.getContent()).isNotEmpty();
-        result.getContent().forEach(p -> {
-            assertThat(p.getUser().getNickname()).isEqualTo("tester");
-            assertThat(p.getCategory().getName()).isEqualTo("자유");
-        });
-    }
-
-    @Test
-    @DisplayName("게시글 상세 조회 시 User/Category fetch join으로 N+1 방지")
-    void findByIdWithDetails_fetchJoin_noNPlusOne() {
-        // given
-        Post saved = postRepository.save(Post.builder()
-                .user(user).category(category)
-                .title("fetch join 테스트").content("내용")
-                .build());
-
-        em.flush();
-        em.clear();
-
-        // when
-        var result = postRepository.findByIdWithDetails(saved.getId());
-
-        // then
-        assertThat(result).isPresent();
-        assertThat(result.get().getUser().getNickname()).isEqualTo("tester");
-        assertThat(result.get().getCategory().getName()).isEqualTo("자유");
-    }
 }

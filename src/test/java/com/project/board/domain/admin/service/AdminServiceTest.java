@@ -223,7 +223,8 @@ class AdminServiceTest {
 
         // when & then
         assertThatThrownBy(() -> adminService.blockUser(admin.getId()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.CANNOT_BLOCK_ADMIN.getMessage());
     }
 
     @Test
@@ -234,7 +235,8 @@ class AdminServiceTest {
 
         // when & then
         assertThatThrownBy(() -> adminService.blockUser(user.getId()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.ALREADY_BLOCKED.getMessage());
     }
 
     @Test

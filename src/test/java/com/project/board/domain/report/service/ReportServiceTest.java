@@ -11,6 +11,7 @@ import com.project.board.domain.report.entity.Report;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.global.exception.CustomException;
+import com.project.board.global.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -93,7 +94,8 @@ class ReportServiceTest {
 
         // when & then
         assertThatThrownBy(() -> reportService.reportPost(reporter.getId(), post.getId(), createReportRequest()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.DUPLICATE_REPORT.getMessage());
     }
 
     @Test
@@ -111,7 +113,8 @@ class ReportServiceTest {
 
         // when & then
         assertThatThrownBy(() -> reportService.reportComment(reporter.getId(), comment.getId(), createReportRequest()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.DUPLICATE_REPORT.getMessage());
     }
 
     @Test
@@ -119,7 +122,8 @@ class ReportServiceTest {
     void reportPost_own_throwsException() {
         // when & then
         assertThatThrownBy(() -> reportService.reportPost(author.getId(), post.getId(), createReportRequest()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.CANNOT_REPORT_OWN.getMessage());
     }
 
     @Test
@@ -127,7 +131,8 @@ class ReportServiceTest {
     void reportComment_own_throwsException() {
         // when & then
         assertThatThrownBy(() -> reportService.reportComment(author.getId(), comment.getId(), createReportRequest()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.CANNOT_REPORT_OWN.getMessage());
     }
 
     @Test

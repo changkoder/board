@@ -17,6 +17,7 @@ import com.project.board.domain.user.dto.UserUpdateRequest;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.global.exception.CustomException;
+import com.project.board.global.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -81,7 +82,8 @@ class UserServiceTest {
     void getMyInfo_userNotFound() {
         // when & then
         assertThatThrownBy(() -> userService.getMyInfo(999L))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.USER_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -124,7 +126,8 @@ class UserServiceTest {
 
         // when & then
         assertThatThrownBy(() -> userService.changePassword(user.getId(), request))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.INVALID_PASSWORD.getMessage());
     }
 
     @Test
@@ -137,7 +140,8 @@ class UserServiceTest {
 
         // when & then
         assertThatThrownBy(() -> userService.changePassword(user.getId(), request))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.SAME_PASSWORD.getMessage());
     }
 
     @Test
@@ -164,7 +168,8 @@ class UserServiceTest {
 
         // when & then
         assertThatThrownBy(() -> userService.deleteAccount(admin.getId()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.CANNOT_DELETE_ADMIN.getMessage());
     }
 
     @Test

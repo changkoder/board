@@ -15,6 +15,7 @@ import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.global.exception.CustomException;
+import com.project.board.global.exception.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -151,7 +152,8 @@ class CommentServiceTest {
 
         // when & then
         assertThatThrownBy(() -> commentService.update(comment.getId(), otherUser.getId(), updateRequest))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.FORBIDDEN.getMessage());
     }
 
     @Test
@@ -169,7 +171,8 @@ class CommentServiceTest {
 
         // when & then
         assertThatThrownBy(() -> commentService.delete(comment.getId(), otherUser.getId()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.FORBIDDEN.getMessage());
     }
 
     @Test

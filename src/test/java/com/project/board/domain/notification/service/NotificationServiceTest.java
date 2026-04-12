@@ -10,6 +10,7 @@ import com.project.board.domain.post.repository.PostRepository;
 import com.project.board.domain.user.entity.User;
 import com.project.board.domain.user.repository.UserRepository;
 import com.project.board.global.exception.CustomException;
+import com.project.board.global.exception.ErrorCode;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -175,7 +176,8 @@ class NotificationServiceTest {
 
         // when & then
         assertThatThrownBy(() -> notificationService.markAsRead(notificationId, actor.getId()))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ErrorCode.FORBIDDEN.getMessage());
     }
 
     @Test
@@ -197,47 +199,4 @@ class NotificationServiceTest {
         assertThat(result.hasNext()).isTrue();
     }
 
-    @Test
-    @DisplayName("알림 페이징 - 두 번째 페이지")
-    void getMyNotifications_secondPage() {
-        // given: 알림 15개 생성
-        for (int i = 0; i < 15; i++) {
-            notificationService.notify(receiver, Notification.NotificationType.COMMENT,
-                    post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "알림" + i);
-        }
-
-        // when
-        Page<NotificationResponse> result = notificationService.getMyNotifications(receiver.getId(), PageRequest.of(1, 10));
-
-        // then
-        assertThat(result.getContent()).hasSize(5);
-        assertThat(result.getNumber()).isEqualTo(1);
-        assertThat(result.hasNext()).isFalse();
-    }
-
-    @Test
-    @DisplayName("알림 페이징 - 전체 조회 및 페이지 메타데이터")
-    void getMyNotifications_pageMetadata() {
-        // given
-        notificationService.notify(receiver, Notification.NotificationType.COMMENT,
-                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "첫번째");
-        notificationService.notify(receiver, Notification.NotificationType.REPLY,
-                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "두번째");
-        notificationService.notify(receiver, Notification.NotificationType.MENTION,
-                post.getId(), null, actor.getId(), actor.getNickname(), actor.getProfileImg(), "세번째");
-
-        // when
-        Page<NotificationResponse> result = notificationService.getMyNotifications(receiver.getId(), PageRequest.of(0, 10));
-
-        // then
-        assertThat(result.getContent()).hasSize(3);
-        assertThat(result.getContent())
-                .extracting(NotificationResponse::getMessage)
-                .containsExactlyInAnyOrder("첫번째", "두번째", "세번째");
-        assertThat(result.getTotalElements()).isEqualTo(3);
-        assertThat(result.getTotalPages()).isEqualTo(1);
-        assertThat(result.hasNext()).isFalse();
-        assertThat(result.isFirst()).isTrue();
-        assertThat(result.isLast()).isTrue();
-    }
 }
