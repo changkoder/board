@@ -1,9 +1,9 @@
 package com.project.board.global.security.jwt;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Base64;
@@ -15,6 +15,9 @@ class JwtTokenProviderTest {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     @Test
     @DisplayName("Access Token 생성 - 정상적으로 토큰이 생성된다")
@@ -66,11 +69,8 @@ class JwtTokenProviderTest {
     @Test
     @DisplayName("토큰 유효성 검증 - 만료된 토큰이면 false")
     void validateToken_expired() {
-        // given
-        JwtTokenProvider expiredProvider = new JwtTokenProvider(
-                "YjJGa2MyUnpabVJ6WmpCaVptUXpOekk1T1RFMk5HWmlOR1UzWkRKa056ZzROV1l5TmpRNVlUaGtNR0V3WkRjeQ==",
-                0, 0
-        );
+        // given - 동일한 비밀키, validity만 0으로 설정하여 순수하게 만료만 테스트
+        JwtTokenProvider expiredProvider = new JwtTokenProvider(jwtSecret, 0, 0);
         String token = expiredProvider.createAccessToken(1L, "USER");
 
         // when
